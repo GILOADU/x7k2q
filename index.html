@@ -659,7 +659,7 @@ function timer(s,done,label='Time left'){clearInterval(tick);if(EX)EX.remaining=
 function mmss(){clearInterval(tick);$('clock').textContent='--:--';$('clock').classList.remove('warn','crit')}
 
 /* exam specification */
-const J='Return JSON only: {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":""}]}]}. Omit unused fields. For multiple-choice, "answer" is the letter; for gap-fill/short-answer omit "options" and give a 1-3 word "answer". Use realistic, British-English pharmacy content as in the official OET.';
+const J='Return valid JSON only, with no markdown fences, using the exact top-level shape {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"notes":[{"h":""},{"t":"","a":[""],"v":[""],"x":[""],"lv":0}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":"","exp":""}]}]}. Include only fields required by this task. For multiple choice, options and answer must agree and answer is the letter only; include a concise explanation when requested. For completion questions, omit options and give the exact expected answer in "answer". Follow task-specific counts and formats over this generic example. Use realistic, unbiased pharmacy and healthcare content, British English, and the skills tested in the OET.';
 const SPEC={
 L:{name:'Listening',parts:{
  A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · 30 seconds to review the notes before each recording · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
@@ -669,21 +669,21 @@ Task: Generate exactly 2 realistic OET Listening Part A scenarios. Each scenario
 Requirements:
 
 1. Scenario & Context:
-   * Consultation Type: a consultation between a healthcare professional (the pharmacist, or another clinician) and a patient (or the patient's relative).
+   * Consultation Type: a realistic healthcare-professional and patient consultation, with Pharmacist and Patient as speakers.
    * Medical Condition: choose a different, realistic condition for each extract (for example asthma management, knee pain and NSAIDs, type 2 diabetes, hypertension, post-operative recovery, a skin condition, a child's ear infection). The two extracts must involve different patients and different conditions.
    * Target Audio Duration: 4 to 5 minutes when recorded/spoken.
-   * Transcript Length: 600 to 750 words per extract (never more than 750), roughly 35-50 short turns, so that it sounds natural at a conversational pace.
+   * Each recording must last 4 to 5 minutes when spoken at a natural consultation pace. Develop the consultation naturally for the full duration; do not pad it with repetition or unnecessary detail.
 
 2. Part 1: The Listening Transcript ("dialogue"):
    * Write a natural-sounding consultation between the Pharmacist and the Patient in spoken British English.
-   * Include typical features of spoken medical consultations: clarification, realistic pauses/hesitations (well, erm, you know), brief back-and-forth exchanges, and symptoms described in non-expert, everyday language.
+   * Include typical features of spoken medical consultations: clarification, brief back-and-forth exchanges, and symptoms described in everyday language. Use hesitations sparingly and only where natural.
    * Include at least one self-correction or distractor (e.g. the patient first says one number or name, then corrects it).
    * Make the dialogue unfold logically so that the answers to the 12 note gaps appear in chronological order.
 
 3. Part 2: The Candidate Notes (12 gapped questions per extract):
    * Create a structured note-taking form under 3-4 clear headings (e.g. Patient details / Presenting complaint / Medical history and medication / Advice and plan).
    * Write the notes in clinical, paraphrased wording (never copying the patient's words), so they still read as grammatical, useful notes once filled in.
-   * Include EXACTLY 12 fill-in-the-blank gaps (numbered 1-12 in order down the form). Write each gap as ____ (four underscores, nothing else). A note line may have at most 2 gaps.
+   * Include exactly 12 gaps in each extract, numbered 1-12 in order down the form. Write each gap as ____ (four underscores, nothing else). A note line may have at most 2 gaps.
    * Rules for gaps:
       * Each answer must be 1 to 3 words only (numbers allowed).
       * Each answer must be the exact words spoken in the dialogue (copy the wording exactly).
@@ -708,18 +708,18 @@ Requirements:
    * Setting: a brief workplace interaction or briefing (for example a pharmacy handover, a team huddle, a phone call with a GP or ward nurse, a policy or protocol briefing, an equipment malfunction, a post-operative patient briefing).
    * Topic: make each of the 6 extracts a different setting and topic.
    * Target Audio Duration: 40 to 60 seconds when spoken.
-   * Transcript Length: 80 to 120 words per extract (never more than 120).
+   * Each recording must last 40 to 60 seconds when spoken at a natural workplace-conversation pace. Keep the exchange concise and complete enough to support its question without padding.
 
 2. Part 1: Audio Transcript ("dialogue"):
    * Write a concise monologue (one speaker) or a brief 2-person dialogue typical of a healthcare setting, in British English.
-   * Use a natural professional register, realistic healthcare terminology, and subtle distractors (information that is mentioned but then changed, rejected or corrected).
+   * Use a natural professional register and realistic healthcare terminology. Distractors must arise naturally from the audio; do not make the speaker artificially confusing.
    * Give each extract a one-sentence "context" that tells the candidate who is speaking and where (for example "You hear a pharmacist handing over to a colleague at the end of a shift.").
 
 3. Part 2: Multiple-Choice Question (3 Options):
-   * Write exactly one question per extract testing the main point, purpose, opinion, or the specific action required.
+   * Write exactly one question per extract testing a relevant workplace detail, purpose, meaning or required action.
    * Provide 3 options, "A. ...", "B. ...", "C. ...", in OET style: all three plausible in the context, similar in length and grammatical form.
    * Only one option is completely correct according to what is stated.
-   * Each distractor must pick up key words or phrases from the audio but change the meaning or a detail (wrong person, wrong time, wrong reason, wrong action).
+   * Use plausible distractors that reflect common misunderstandings of a stated detail, purpose or action; do not rely on trick wording.
    * Vary the position of the correct answer across the 6 extracts.
 
 4. Part 3: Answer Key & Justification:
@@ -735,7 +735,7 @@ Task: Generate exactly 2 distinct, realistic OET Listening Part C extracts. Each
 Requirements:
 1. Extract format and length:
    * Each extract is a pharmacist interview, expert interview, or presentation on a pharmacy or healthcare topic.
-   * Write 1000 to 1200 spoken words in the dialogue for EACH extract, excluding speaker labels, context and questions. This is essential: at about 150 words per minute, each recording should last 4 to 5 minutes. Do not provide a short sample, summary, or outline.
+   * Each recording must last 4 to 5 minutes when spoken at a natural presentation or interview pace. Develop the extract naturally for the full duration; do not pad it with repetition or unnecessary detail, and do not provide a sample, summary, or outline.
    * Use natural spoken British English, a realistic professional register, and one or two speakers. Include natural turn-taking or transitions and enough development and detail to sustain the full recording.
    * Make the extracts different in topic and format. Give each a one-sentence context explaining who the candidate hears.
 
@@ -745,13 +745,36 @@ Requirements:
    * Make all options plausible, but ensure only one is supported by the transcript. Vary the position of the correct answer.
    * Include the correct answer letter and a concise explanation for each question.
 
-3. Before returning the result, check that there are exactly 2 extracts, each dialogue contains 600 to 750 spoken words, and each extract has exactly 6 questions.
+3. Before returning the result, check that there are exactly 2 extracts, each audio transcript supports a 4-to-5-minute recording, and each extract has exactly 6 questions with 3 options each.
 
 Use "dialogue" for the transcript, with each turn as {"s":"speaker name","t":"spoken words"}. ${J}`}}},
 R:{name:'Reading',parts:{
- A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`Create OET Pharmacy Reading Part A: 4 short related texts (Text A-D, about 150-200 words each: e.g. guideline, drug monograph, policy, patient leaflet) on ONE topic, in a single item using "texts". Add exactly 20 questions: first 7 matching ("Which text states...?" answer = letter A-D, no options), then 6 short-answer, then 7 sentence-completion (q contains ____). Answers 1-3 words or a letter. ${J}`},
- B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`Create OET Pharmacy Reading Part B: 6 different short workplace texts (about 100 words: emails, memos, protocols, notices), each with 1 multiple-choice question (A, B, C). Put the full workplace text in the "text" field of each item (never leave it empty). ${J}`},
- C:{min:45,t:'Part C – Longer texts',d:'Starts after Part B (shared timer)',p:`Create OET Pharmacy Reading Part C: 2 different texts (about 700 words each, journal-style articles on pharmacy practice or pharmacology), each with 8 multiple-choice questions (A, B, C, D) on detail, opinion, reference and inference. Put the full article in the "text" field of each item (never leave it empty). ${J}`}}}};
+ A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`You are an expert OET Reading Part A item writer for Pharmacy.
+
+Create one item containing exactly 4 related, clearly labelled source texts (A-D) on a common healthcare/pharmacy topic. Use authentic functional source types such as a guideline, medicine information, policy or patient information. Keep the source texts concise, distinct, and information-rich; do not turn them into four essays.
+
+Write exactly 20 questions in this order:
+1. Questions 1-7: matching. Ask which text (A-D) contains a specified piece of information. No options; answer is one letter.
+2. Questions 8-13: short answer. Ask for a specific detail stated in the texts. No options; answer is a short phrase of 1-3 words.
+3. Questions 14-20: sentence completion. Include ____ in each question and require an answer of 1-3 words taken from the texts.
+
+Questions must be answerable from the texts, avoid duplicate targets, and follow OET's rapid information-finding and scanning focus. The complete source material must be returned; never omit a text.
+
+Return JSON with one item: {"items":[{"title":"...","texts":[{"label":"Text A","body":"..."},{"label":"Text B","body":"..."},{"label":"Text C","body":"..."},{"label":"Text D","body":"..."}],"questions":[{"q":"...","answer":"..."}]}]}. Omit "options" for all Part A questions. ${J}`},
+ B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`You are an expert OET Reading Part B item writer for Pharmacy.
+
+Create exactly 6 separate, concise workplace texts, each followed by exactly one 3-option multiple-choice question. Use varied authentic workplace genres, such as an email, memo, policy/procedure notice, instruction, or staff communication. Each text should be about 100 words, with a clear purpose and realistic workplace details.
+
+Questions should test understanding of the text's purpose, meaning or a relevant detail, not general medical knowledge. Give exactly three plausible options labelled A, B and C, with one unambiguously correct answer. Keep options parallel in wording and length; avoid trick questions. Vary the correct option letter.
+
+Return JSON with exactly 6 items, each containing a title, the complete source in "text", and one question with options, answer letter and a concise explanation. ${J}`},
+ C:{min:45,t:'Part C – Longer texts',d:'Starts after Part B (shared timer)',p:`You are an expert OET Reading Part C item writer for Pharmacy.
+
+Create exactly 2 distinct, coherent long-form texts on relevant healthcare or pharmacy topics, such as practice, treatment, research, or professional experience. Each text should be about 700 words and written in a realistic article or interview style; include enough argument and detail to support interpretation questions.
+
+Write exactly 8 four-option multiple-choice questions per text (16 total). Use options A-D. Assess understanding of explicit information, the writer's or speaker's views and attitude, reference, implication and inference. Questions must be answerable from the text, with one clearly best answer; distractors should be plausible but contradicted or unsupported by the text. Vary correct answer positions.
+
+Return JSON with exactly 2 items, each containing a title, the complete source in "text", and exactly 8 questions with four options, answer letter and a concise explanation. ${J}`}}}};
 
 /* sequential progression, permanent locks & scoring (per test attempt) */
 const ORDER={L:['A','B','C'],R:['A','B','C']};
@@ -1213,7 +1236,10 @@ function openWriting(){const t=$('ltr');if(!t||!t.disabled||t.dataset.open)retur
  const b=$('wBanner');if(b){b.className='msg okm';b.textContent='✓ Writing time — type your letter in the box below.'}
  timer(2400,()=>{t.disabled=true;evalW()},'Writing')}
 async function newW(){busyW=true;mmss();$('w').innerHTML='<div class="card">Preparing case notes…</div>';
- try{const d=await gem('Create an OET Pharmacy Writing task. Return JSON {"setting":"","recipient":"","notes":""}. "setting" = one-line pharmacist workplace (e.g. hospital outpatient pharmacy). "recipient" = who the letter goes to (e.g. patient\'s GP, community pharmacist, specialist nurse). "notes" = realistic case notes in OET style (plain text, note form, with headings: Patient, Reason for letter, Medical history, Medications, Social history, Pharmacist assessment and actions, Plan/follow-up), including a few irrelevant details the writer should omit.');
+ try{const d=await gem(`You are an expert OET Writing task writer for Pharmacy.
+Create one realistic case-note task requiring the candidate to write a professional letter in response to a clear purpose (for example referral, transfer of care, or an update requesting review). Choose a plausible recipient who can act on the information. Make the setting and case clinically coherent.
+The notes must be concise, factual and in note form, with useful headings such as patient details, reason for writing, relevant history/medicines, assessment/actions and plan. Include enough relevant facts to support a complete, focused letter, plus at most two clearly non-essential details that the candidate should omit. Do not write the letter or add facts that are absent from the notes. Avoid real personal identifiers.
+Return valid JSON only: {"setting":"one-line workplace setting","recipient":"professional recipient and role","notes":"case notes in plain text"}.`);
  DATA.W=d;$('w').innerHTML=`<div class="two"><div class="card"><h3>Case notes</h3><p class="mut">Setting: ${esc(d.setting)}</p><div class="tx" style="max-height:500px">${esc(d.notes)}</div></div>
  <div class="card"><h3>Task</h3><p>Using the information in the case notes, write a letter to <b>${esc(d.recipient)}</b>.</p><p>In your answer:<br>• Expand the relevant notes into complete sentences<br>• Do not use note form<br>• Use letter format</p><p>The body of the letter should be approximately <b>180–200 words</b>.</p>
  <div class="msg run" id="wBanner">● Reading time — the writing box is locked for the first 5:00 and opens automatically. <button class="s" type="button" onclick="openWriting()">Skip reading time &amp; start writing</button></div>
@@ -1221,7 +1247,9 @@ async function newW(){busyW=true;mmss();$('w').innerHTML='<div class="card">Prep
  timer(300,openWriting,'Reading time')}catch(e){busyW=false;$('w').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function askW(){ask('Submit your letter?','Your letter will be marked and you will not be able to edit it afterwards.',()=>evalW(),'Submit letter')}
 async function evalW(){mmss();if(!isDone('W','T'))lockPart('W','T');$('wf').innerHTML='<div class="card">Marking…</div>';const l=$('ltr').value;$('ltr').disabled=true;
- try{const e=await gem(`You are an OET Writing assessor. Mark this Pharmacy letter on the official OET criteria: Purpose (0-3), Content (0-7), Conciseness & Clarity (0-7), Genre & Style (0-7), Organisation & Layout (0-7), Language (0-7). Use whole numbers only (no half marks) and never exceed a maximum.\nCase notes:\n${DATA.W.notes}\nRecipient: ${DATA.W.recipient}\nLetter:\n${l}\nReturn JSON {"purpose":0,"content":0,"clarity":0,"genre":0,"organisation":0,"language":0,"strengths":[""],"improvements":[""],"missing_or_irrelevant":""}`);
+ try{const e=await gem(`You are an OET Writing assessor. Assess the candidate's letter only against the task purpose, recipient and supplied case notes. Do not reward invented clinical facts or penalise a valid concise paraphrase. Consider selection of relevant information, accurate communication of key facts, appropriate professional letter conventions, clear organisation, concision and language control.
+Score the OET Writing criteria separately using whole numbers only: Purpose 0-3; Content 0-7; Conciseness & Clarity 0-7; Genre & Style 0-7; Organisation & Layout 0-7; Language 0-7. Do not exceed any maximum. Provide actionable feedback, and identify important omitted information and irrelevant or unsupported content.
+Case notes:\n${DATA.W.notes}\nRecipient: ${DATA.W.recipient}\nLetter:\n${l}\nReturn JSON {"purpose":0,"content":0,"clarity":0,"genre":0,"organisation":0,"language":0,"strengths":[""],"improvements":[""],"missing_or_irrelevant":""}`);
  busyW=false;
  const ws=clamp(e.purpose,3)+clamp(e.content,7)+clamp(e.clarity,7)+clamp(e.genre,7)+clamp(e.organisation,7)+clamp(e.language,7);
  const west=scaled(ws/WMAX*42),wgr=grade(west);
@@ -1236,13 +1264,15 @@ function speaking(){
  $('main').innerHTML=`<div class="card"><h2>Speaking Sub-Test</h2><p class="mut">Two role-plays. For each: 3 minutes preparation, then about 5 minutes with the patient. You are the pharmacist. Speak (🎤) or type.</p><button class="p" onclick="newS()">${isDone('S',0)?'Continue – Role-play 2':'Start Speaking Test'}</button></div>
  <div class="card"><h3>🎤 Microphone check</h3><p class="mut">The role-plays use your microphone for speech-to-text and to record your voice (kept on this device only). Test it before you start.</p><div class="msg wait" id="micMsg">● Looking for a microphone…</div><div class="ptrack" style="margin:8px 0"><div class="pfill" id="micLvl" style="width:0"></div></div><button class="s" onclick="testMic()">🎤 Test microphone</button></div><div id="sp"></div>`;micInit()}
 async function newS(){busyS=true;mmss();$('sp').innerHTML='<div class="card">Preparing role-play cards…</div>';
- try{const d=await gem('Create 2 different OET Pharmacy Speaking role-play cards for the candidate, who plays the pharmacist. Return JSON {"cards":[{"setting":"","patient":"","background":"","tasks":["","","",""]}]}. Settings: community pharmacy or hospital. Tasks are 4 bullet instructions in the OET style (e.g. "Find out about...", "Explain how...", "Reassure...").');cards=d.cards.slice(0,2);rp(isDone('S',0)?1:0)}catch(e){busyS=false;$('sp').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
+ try{const d=await gem(`You are an expert OET Speaking role-play task writer for Pharmacy. Create exactly 2 distinct, realistic role-play cards. The candidate is always the pharmacist; the interlocutor is a patient or carer in a plausible community or hospital pharmacy context.
+For each card, give a concise setting, the interlocutor's role, and a short candidate-facing background with only the information a pharmacist would reasonably know before the consultation. Give exactly 4 clear task bullets, phrased as actions (for example find out, explain, advise, reassure, or agree a plan). Tasks should elicit natural two-way communication, not a speech or a checklist of clinical facts. Keep all details coherent and avoid asking the candidate to diagnose, prescribe, or make unsupported decisions beyond the pharmacist's role.
+Return valid JSON only: {"cards":[{"setting":"","patient":"","background":"","tasks":["","","",""]},{"setting":"","patient":"","background":"","tasks":["","","",""]}]}.`);cards=d.cards.slice(0,2);rp(isDone('S',0)?1:0)}catch(e){busyS=false;$('sp').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function rp(i){RP=i;chat=[];busyS=true;$('sp').innerHTML=`<div class="card"><h2>Role-play ${i+1} of 2 – Candidate card</h2><p><b>Setting:</b> ${esc(cards[i].setting)}</p><p><b>Patient:</b> ${esc(cards[i].patient)}</p><p><b>Background:</b> ${esc(cards[i].background)}</p><p><b>Task:</b></p><ul>${cards[i].tasks.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
  <div class="card"><div id="recInd" class="mut" style="margin-bottom:6px"></div><div id="ch" style="min-height:150px;max-height:320px;overflow:auto"><span class="mut">Preparation time – the role-play opens after 3:00.</span></div><div style="display:flex;gap:6px;margin-top:8px"><input type="text" id="ci" style="flex:1;width:auto" disabled onkeydown="if(event.key==='Enter')send()"><button class="s" id="mc" onclick="mic()" disabled>🎤</button><button class="p" id="sd" onclick="send()" disabled>Send</button></div><br><button class="s" onclick="askEndS()">End role-play &amp; get feedback</button></div><div id="sf"></div>`;
  stopMicTest();micDetect().then(r=>{const ri=$('recInd');if(ri&&!MIC.rec)ri.textContent=r.state==='found'?'🎤 Microphone detected — your voice is recorded once the role-play opens.':'⚠ No microphone detected — you can still type your answers.'});
  timer(180,()=>{['ci','mc','sd'].forEach(x=>$(x).disabled=false);startRec();$('ch').innerHTML='<span class="mut">The patient is waiting. Start the role-play.</span>';$('ci').focus();timer(300,endS,'Role-play')},'Preparation')}
 async function send(){const t=$('ci').value.trim();if(!t)return;$('ci').value='';$('ch').innerHTML+=`<div class="msg me"><b>You:</b> ${esc(t)}</div>`;chat.push({role:'user',parts:[{text:t}]});
- try{const c=cards[RP],r=await gem(chat,false,`You are the patient in an OET Pharmacy speaking role-play. Patient: ${c.patient}. Background: ${c.background}. The candidate is the pharmacist, tasks: ${c.tasks.join('; ')}. Stay in character, reply in 1-3 spoken sentences, only reveal information when asked, show realistic worry, never coach the candidate.`);
+ try{const c=cards[RP],r=await gem(chat,false,`You are the ${c.patient} in a realistic OET Pharmacy role-play. Scenario: ${c.background}. The candidate is the pharmacist and has these tasks: ${c.tasks.join('; ')}. Remain in character and respond naturally in 1-3 short spoken sentences. Do not volunteer every detail at once: disclose relevant information when the candidate asks or when it would naturally arise. React to explanations and show a believable perspective or concern when appropriate. Do not coach, assess, or speak for the pharmacist. Keep the interaction clinically plausible and consistent with the scenario.`);
  chat.push({role:'model',parts:[{text:r}]});$('ch').innerHTML+=`<div class="msg pt" style="background:#f1f1f1"><b>Patient:</b> ${esc(r)}</div>`;$('ch').scrollTop=1e5;say(r)}catch(e){$('ch').innerHTML+=`<div class="card bad">${esc(e.message)}</div>`}}
 /* ---------- microphone detection, test & recording ---------- */
 const MIC={ok:false,test:null,ctx:null,raf:0,rec:null,recStream:null,chunks:[],sr:null};
@@ -1300,7 +1330,9 @@ function mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;
 function askEndS(){ask('End this role-play?','Your conversation will be assessed and scored, and this role-play will be locked.',()=>endS(),'End & assess')}
 async function endS(){mmss();stopAudio();if(MIC.sr){MIC.sr.onend=null;try{MIC.sr.abort()}catch(e){}MIC.sr=null;const mb=$('mc');if(mb)mb.textContent='🎤'}const recUrl=await stopRec();['ci','mc','sd'].forEach(x=>$(x).disabled=true);if(chat.length<2){busyS=false;lockPart('S',RP,{score:0,max:SMAX});$('sf').innerHTML=`<div class="card bad">No conversation to assess – recorded as 0 / ${SMAX}.<br><br>${RP==0?'<button class="p" onclick="rp(1)">Start Role-play 2</button>':'<button class="p" onclick="nav(\'S\')">Back to Speaking menu</button>'}</div>`;return}
  $('sf').innerHTML='<div class="card">Assessing…</div>';const tr=chat.map(m=>(m.role=='user'?'Pharmacist: ':'Patient: ')+m.parts[0].text).join('\n');
- try{const e=await gem(`You are an OET Speaking assessor. Role-play card tasks: ${cards[RP].tasks.join('; ')}.\nTranscript (typed or speech-to-text, so judge language from wording only):\n${tr}\nMark on OET criteria. Linguistic criteria, each scored 0-6 as whole numbers: intelligibility (pronunciation, stress, intonation), fluency (smooth flow, no long pauses), appropriateness of language (tone, register, word choice), resources of grammar and expression. Clinical communication indicators, each scored 0-3 as whole numbers: relationship building, understanding and incorporating the patient's perspective, providing structure, information gathering, information giving. Return JSON {"intelligibility":0,"fluency":0,"appropriateness":0,"grammar":0,"relationship":0,"perspective":0,"structure":0,"gathering":0,"giving":0,"strengths":[""],"improvements":[""],"model_phrases":[""]}`);
+ try{const e=await gem(`You are an OET Speaking assessor. Assess only evidence in this role-play transcript against the candidate's tasks; do not infer unrecorded actions, pronunciation, stress, intonation, or pauses from text. Be cautious about intelligibility and fluency because this transcript may come from speech-to-text; explain this limitation rather than inventing audio evidence.
+Score the linguistic criteria as whole numbers from 0-6 each: intelligibility (only insofar as the wording is comprehensible), fluency (only observable conversational continuity), appropriateness of language, and resources of grammar and expression. Score the clinical communication indicators as whole numbers from 0-3 each: relationship building, understanding and incorporating the patient's perspective, providing structure, information gathering, and information giving. Base every score on specific transcript evidence; do not give credit just for mentioning a task if the communication is ineffective.
+Role-play tasks: ${cards[RP].tasks.join('; ')}\nTranscript:\n${tr}\nReturn JSON {"intelligibility":0,"fluency":0,"appropriateness":0,"grammar":0,"relationship":0,"perspective":0,"structure":0,"gathering":0,"giving":0,"strengths":[""],"improvements":[""],"model_phrases":[""]}`);
  busyS=false;
  const ling=clamp(e.intelligibility,6)+clamp(e.fluency,6)+clamp(e.appropriateness,6)+clamp(e.grammar,6),clin=clamp(e.relationship,3)+clamp(e.perspective,3)+clamp(e.structure,3)+clamp(e.gathering,3)+clamp(e.giving,3),ss=ling+clin;
  lockPart('S',RP,{score:ss,max:SMAX,ling,clin});
