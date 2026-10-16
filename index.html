@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OET | Pharmacy – Practice Test</title>
+<style>
+:root{--b:#00539f;--bd:#003b73;--l:#e6eef7;--r:#c0392b;--g:#1e8449;--amber:#e8a13a;--fs:15px}
+*{box-sizing:border-box}
+body{margin:0;font:var(--fs)/1.55 Arial,Helvetica,sans-serif;color:#222;background:#f3f5f8}
+header{background:var(--b);color:#fff;display:flex;gap:12px;justify-content:space-between;align-items:center;padding:8px 16px;position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header b{font-size:17px;letter-spacing:.3px}
+.cand{opacity:.85;font-size:13px}
+#secLabel{font-weight:700}
+#clock{font:700 15px monospace;background:var(--bd);padding:4px 12px;border-radius:3px;min-width:175px;text-align:center}
+#clock.warn{background:#b7791f}
+#clock.crit{background:#a11;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.45}}
+.zb{background:var(--bd);color:#fff;border:1px solid #002a53;border-radius:3px;padding:4px 9px;cursor:pointer;font:inherit}
+nav{background:#fff;border-bottom:2px solid var(--b);display:flex;flex-wrap:wrap}
+nav button{border:0;background:none;padding:12px 22px;font:inherit;cursor:pointer;color:#333}
+nav button.on{background:var(--b);color:#fff}
+main{max-width:1180px;margin:20px auto;padding:0 16px}
+.rail{max-width:1180px;margin:16px auto 0;padding:0 16px;display:flex;align-items:center;gap:8px}
+.rstep{display:flex;align-items:center;gap:8px}
+.dot{width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid #b9c4d2;color:#68737f;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.rstep.on .dot{background:var(--b);border-color:var(--b);color:#fff}
+.rstep.done .dot{background:var(--g);border-color:var(--g);color:#fff}
+.rlab{font-size:12.5px;color:#5b6672;white-space:nowrap}
+.rstep.on .rlab{color:var(--b);font-weight:700}
+.rline{flex:1;height:2px;background:#cdd6e0;min-width:12px}
+.rline.done{background:var(--g)}
+@media(max-width:700px){.rlab{display:none}}
+.card{background:#fff;border:1px solid #cfd6df;border-radius:4px;padding:16px 20px;margin-bottom:14px}
+h2{margin:0 0 6px;color:var(--b)}h3{margin:18px 0 8px}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #cfd6df;padding:7px 10px;text-align:left;vertical-align:top}th{background:var(--l)}
+input[type=text]{border:1px solid #888;padding:6px 8px;width:260px;max-width:100%;font:inherit}
+input[type=radio]{accent-color:var(--b)}
+input[type=range]{accent-color:var(--b)}
+textarea{width:100%;min-height:340px;border:1px solid #888;padding:10px;font:inherit;line-height:1.5;resize:vertical}
+button.p{background:var(--b);color:#fff;border:0;padding:9px 18px;cursor:pointer;font:inherit;border-radius:3px}
+button.p:disabled{background:#9aa;cursor:not-allowed}
+button.s{background:#fff;border:1px solid var(--b);color:var(--b);padding:8px 16px;cursor:pointer;font:inherit;border-radius:3px}
+button.s:disabled{opacity:.5;cursor:not-allowed}
+button.s.on{background:var(--l);font-weight:700;border-color:var(--b)}
+.s.flagged{background:#fff7e6;border-color:var(--amber);color:#8a5b00;font-weight:700}
+.actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.mut{color:#667;font-size:13px}
+.ok{color:var(--g);font-weight:700}.bad{color:var(--r);font-weight:700}
+.msg{padding:8px 12px;border-radius:4px;margin:10px 0;font-weight:600}
+.msg.wait{background:#eef1f5;color:#5b6672}
+.msg.run{background:#e8f1fb;color:var(--b)}
+.msg.okm{background:#e9f7ee;color:var(--g);border:1px solid #bfe5cd}
+.msg.bad{background:#fdecea;color:var(--r)}
+.cam{position:relative;background:#101820;border-radius:6px;height:230px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.camtxt{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:#9fb3c8;font:600 11px monospace;letter-spacing:1px;z-index:4}
+.scanline{position:absolute;left:0;right:0;top:0;height:2px;background:rgba(0,180,255,.9);box-shadow:0 0 14px 3px rgba(0,180,255,.65);opacity:0;z-index:3}
+.scanline.run{opacity:1;animation:scan 1.5s linear infinite}
+@keyframes scan{0%{top:0}100%{top:calc(100% - 2px)}}
+.camvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.silh{width:84px;height:84px;opacity:.45;z-index:1}
+.corners i{position:absolute;width:26px;height:26px;border:3px solid rgba(120,200,255,.75);z-index:2}
+.corners i:nth-child(1){top:12px;left:12px;border-right:0;border-bottom:0}
+.corners i:nth-child(2){top:12px;right:12px;border-left:0;border-bottom:0}
+.corners i:nth-child(3){bottom:12px;left:12px;border-right:0;border-top:0}
+.corners i:nth-child(4){bottom:12px;right:12px;border-left:0;border-top:0}
+.cam.ok{box-shadow:inset 0 0 0 3px var(--g)}
+.chip{display:inline-flex;width:36px;height:36px;border-radius:50%;border:2px solid #b9c4d2;color:#8a97a5;align-items:center;justify-content:center;font-weight:700;margin-right:8px;transition:.15s}
+.chip.on{background:var(--b);border-color:var(--b);color:#fff;box-shadow:0 0 0 4px #cfe2f4}
+.player{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.ptrack{flex:1;min-width:110px;height:8px;background:#dde4ec;border-radius:4px;overflow:hidden}
+.pfill{height:100%;width:0;background:var(--b)}
+.tuttag{display:inline-block;background:var(--l);color:var(--b);font-weight:700;padding:4px 12px;border-radius:14px;margin-bottom:10px;font-size:13px}
+.tuthead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.mock{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.mock>div{border:1px dashed #9fb3c8;background:#f8fafc;padding:12px;border-radius:4px}
+@media(max-width:700px){.mock{grid-template-columns:1fr}}
+.demoopt{display:block;padding:7px 10px;border:1px solid #d4dbe3;border-radius:4px;margin:5px 0;cursor:pointer;user-select:none}
+.demoopt:hover{background:#f0f4fa}
+.demoopt.strike{text-decoration:line-through;opacity:.45}
+.revgrid{display:grid;grid-template-columns:repeat(auto-fill,36px);gap:6px;max-height:300px;overflow:auto;margin:10px 0}
+.pv{width:34px;height:34px;border:1px solid #99a;background:#fff;cursor:pointer;font:inherit;border-radius:3px;padding:0}
+.pv.ans{background:var(--g);border-color:var(--g);color:#fff}
+.pv.fl{outline:3px solid var(--amber);outline-offset:-3px}
+.legend span{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin:0 4px 0 12px;border:1px solid #99a;border-radius:2px}
+.sw{display:inline-block;width:13px;height:13px;border:1px solid #99a;border-radius:2px;vertical-align:-2px}
+.sw.g{background:var(--g);border-color:var(--g)}
+.sw.fo{background:#fff;outline:2px solid var(--amber);outline-offset:-2px}
+.sw.w{background:#fff}
+mark.hl{background:#ffe98a;color:inherit;padding:0 1px}
+.tx{white-space:pre-wrap;background:#fafafa;border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:4px}
+.txpane{max-height:calc(100vh - 260px);min-height:200px;overflow-y:auto;overflow-x:hidden}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.env{list-style:none;padding:0;margin:6px 0}.env li{margin:5px 0;color:#2c3e50}
+.center{text-align:center;padding:26px 10px}
+.bigok{width:66px;height:66px;border-radius:50%;background:var(--g);color:#fff;font-size:34px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.sum{max-width:460px;margin:14px auto}
+.startrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.bigbtn{font-size:16px;padding:12px 26px}
+dialog{border:1px solid #999;border-radius:6px;padding:20px;width:440px;max-width:92vw}
+dialog::backdrop{background:rgba(20,30,45,.55)}
+#toasts{position:fixed;bottom:18px;right:18px;z-index:60;display:flex;flex-direction:column;gap:8px}
+.toast{background:#333;color:#fff;padding:10px 16px;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.3);max-width:340px}
+.big{font-size:20px}
+.rok td{background:#f2faf5}.rbad td{background:#fdf3f2}
+details{margin:10px 0}summary{cursor:pointer;font-weight:700;color:var(--b)}
+/* exam engine */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr}}
+.bar{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid #cfd6df;padding:10px 14px;margin-top:14px;position:sticky;bottom:0;box-shadow:0 -2px 8px rgba(0,0,0,.07);flex-wrap:wrap;z-index:4}
+.opt{display:block;padding:6px 8px;border:1px solid transparent;border-radius:4px;cursor:pointer;margin:2px 0}.opt:hover{background:#f0f4fa}
+.opt.strike{text-decoration:line-through;opacity:.45}
+.q{margin:12px 0;padding-left:34px;position:relative}.q .n{position:absolute;left:0;top:0;background:var(--b);color:#fff;border-radius:50%;width:26px;height:26px;text-align:center;font-size:13px;line-height:26px}
+.q .flagbtn{position:absolute;left:1px;top:29px}
+.flagbtn{border:0;background:none;cursor:pointer;font-size:15px;color:#a6adba;padding:0 4px}.flagbtn.on{color:var(--amber)}
+.notes{border:2px solid #556;background:#fff;padding:10px 18px 14px;margin:12px 0}.nt{font-style:italic;color:#445;margin-bottom:6px}
+.nh{font-weight:700;color:var(--b);border-bottom:1px solid #cfd6df;margin:14px 0 4px;padding-bottom:2px;text-transform:uppercase;font-size:13px;letter-spacing:.5px}
+.nl{margin:6px 0 6px 14px;line-height:2.2}.nl:before{content:"\2022 ";color:#667}.nl.lv1{margin-left:42px}.nl.lv1:before{content:"\25E6 "}
+.gap{display:inline-flex;align-items:center;gap:5px;margin:0 4px;vertical-align:middle}
+.gn{background:var(--b);color:#fff;border:0;border-radius:50%;min-width:24px;height:24px;font-size:12px;line-height:24px;text-align:center;cursor:pointer;padding:0}
+.gn.flg{background:var(--amber)}
+.gap input{width:170px;padding:3px 6px;border:0;border-bottom:2px solid #556;background:#f7f9fc}
+/* demo engine */
+.dsplit{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:760px){.dsplit{grid-template-columns:1fr}}
+.dopt{display:block;padding:7px 10px;border:1px solid #d4dbe3;border-radius:4px;margin:5px 0;cursor:pointer;user-select:none}
+.dopt:hover{background:#f0f4fa}
+.dopt.strike{text-decoration:line-through;opacity:.45}
+.dbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.foot{max-width:1180px;margin:6px auto 24px;padding:0 16px;color:#8a97a5;font-size:12px;text-align:center}
+nav button.lock{color:#8a97a5;cursor:not-allowed}
+nav button.lock.on{background:#8a97a5;color:#fff}
+#scoreChip{font-weight:700}
+.sbt td:nth-child(2),.sbt td:nth-child(3){white-space:nowrap}
+.sbt th{font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <b id="obTitle">OET | Pharmacy</b>
+  <span class="cand" id="candLbl"></span>
+  <span id="secLabel"></span>
+  <span style="flex:1"></span>
+  <span id="gUser" style="display:none;align-items:center;gap:6px"><img id="gPic" alt="" referrerpolicy="no-referrer" style="width:22px;height:22px;border-radius:50%"><span id="gName" style="font-size:12px"></span><button class="zb" onclick="gSignOut()" title="Sign out">Sign out</button></span>
+  <span id="gBtn" title="Sign in with Google"></span>
+  <button class="zb" onclick="zoom(-1)" title="Zoom out">A−</button>
+  <button class="zb" onclick="zoom(1)" title="Zoom in">A+</button>
+  <button class="zb" id="scoreChip" onclick="openScores()" title="Open score tracker">🏆 Score: —</button>
+  <span id="clock" aria-live="polite">--:--</span>
+  <button class="zb" onclick="openSet()" title="Settings / API key">⚙</button>
+</header>
+
+<div class="rail" id="rail"></div>
+<nav id="nav"></nav>
+<main id="main"></main>
+<p class="foot">Training simulation of the computer-delivered OET · not affiliated with the OET Centre / CBLA.</p>
+
+<dialog id="obSet">
+  <h3 style="margin-top:0">Settings &amp; utilities</h3>
+  <label>Profession (header title)</label><br>
+  <select id="prof" onchange="obSetProf(this.value)" style="width:100%;padding:6px;margin:6px 0 12px">
+    <option>Pharmacy</option><option>Nursing</option><option>Medicine</option><option>Dentistry</option><option>Physiotherapy</option>
+  </select>
+  <label>Gemini API key <span class="mut">(needed for AI-generated sub-tests)</span></label>
+  <div style="display:flex;gap:8px;margin:6px 0">
+    <input type="password" id="obKey" placeholder="AIzaSy…" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
+    <button class="s" onclick="obToggleKey()" title="Show / hide">👁</button>
+  </div>
+  <div class="mut" id="obKeyStatus"></div>
+  <div style="display:flex;gap:8px;margin:8px 0 14px">
+    <button class="p" onclick="obSaveKey()">Save key</button>
+    <button class="s" onclick="obTestKey()">Test key</button>
+  </div>
+  <label>Gemini model</label><br>
+  <select id="obModel" onchange="obSetModel(this.value)" style="width:100%;padding:6px;margin:6px 0 12px">
+    <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+    <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+  </select>
+  <label>Default volume</label>
+  <input type="range" min="0" max="1" step="0.05" id="setVolR" oninput="setVol(this.value)" style="width:100%">
+  <p style="text-align:right;margin:14px 0 0">
+    <button class="s" onclick="restartOb()">Restart check-in</button>
+    <button class="p" onclick="$('obSet').close()">Close</button>
+  </p>
+</dialog>
+
+<dialog id="cf"><h3 id="cfT"></h3><p id="cfM"></p>
+<p style="text-align:right;margin:0"><button class="s" onclick="$('cf').close()">Cancel</button> <button class="p" id="cfY" onclick="cfGo()">Confirm</button></p></dialog>
+
+<dialog id="rev"><h3>Review questions</h3><div class="revgrid" id="revGrid"></div>
+<div class="legend mut">Answered<span style="background:var(--g)"></span> Flagged<span style="background:#fff;outline:2px solid var(--amber);outline-offset:-2px"></span> Unanswered<span style="background:#fff"></span></div>
+<p class="mut" id="revSum"></p><p style="text-align:right;margin:0"><button class="s" onclick="$('rev').close()">Return to questions</button> <button class="p" onclick="askSubmit()">Submit part</button></p></dialog>
+
+<dialog id="sb" style="width:720px"><h3 style="margin-top:0">🏆 Score tracker</h3>
+<div id="sbBody" style="max-height:62vh;overflow:auto"></div>
+<p style="text-align:right;margin:12px 0 0"><button class="s" onclick="$('sb').close()">Close</button></p></dialog>
+
+<div id="toasts"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* ==================== shared helpers ==================== */
+const $=id=>document.getElementById(id),
+      esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m,ms=4000){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),ms)}
+let key=localStorage.getItem('gk')||'',
+    currentModel=localStorage.getItem('gmodel')||'gemini-3.8-flash',
+    tick,DATA={},played={},chat=[],RP=null,cards=[],EX=null,hlon=false,pendingNav=null,
+    busyW=false,busyS=false,lastLeftFor=-1,cfY=null,ac,MG,cur,progRAF;
+let CAND=localStorage.getItem('cand')||'Dr. Alex Mercer';
+ $('candLbl').textContent='Candidate: '+CAND;
+let fs=+(localStorage.getItem('fs')||15);
+document.documentElement.style.setProperty('--fs',fs+'px');
+function zoom(d){fs=Math.min(22,Math.max(12,fs+d));localStorage.setItem('fs',fs);document.documentElement.style.setProperty('--fs',fs+'px')}
+const VOL=()=>+(localStorage.getItem('ovol')??0.8);
+function setVol(v){localStorage.setItem('ovol',v);if(MG)MG.gain.value=+v;if(OB.gain)OB.gain.gain.value=+v}
+const obWait=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ==================== onboarding state & wizard ==================== */
+const OB={step:1,checks:{cred:false,id:false,login:false,details:false,audio:false,tut:false},times:{},page:1,left:600,tick:null,pvT:null,scan:false,tone:false,ac:null,gain:null,raf:null,clock:'local',demo:null};
+function localClock(){const d=new Date();$('clock').textContent=d.toTimeString().slice(0,5)+' · Local'}
+setInterval(()=>{if(OB.clock==='local')localClock()},1000);
+
+const RAIL=[['1','Credentials'],['2','Check-in'],['3','Login'],['4','Verify details'],['5','Tutorial'],['6','Start exam']];
+const LAST=RAIL.length;
+function drawRail(){$('rail').innerHTML=RAIL.map(([n,l],i)=>`<div class="rstep ${i+1<OB.step?'done':i+1===OB.step?'on':''}"><div class="dot">${i+1<OB.step?'✓':n}</div><div class="rlab">${l}</div></div>${i<RAIL.length-1?`<div class="rline ${i+1<OB.step?'done':''}"></div>`:''}`).join('')}
+function goStep(n){clearInterval(OB.tick);OB.demo=null;OB.step=n;drawRail();
+  const dr=$('dRev');if(dr)dr.close();
+  if($('rail'))$('rail').style.display='';
+  $('secLabel').textContent=['','Step 1 · Credentials Required','Step 2 · Check-in & Verification','Step 3 · Login Screen','Step 4 · Verification & Instructions','Step 5 · Tutorial','Step 6 · Start Exam'][n];
+  [null,step1,step2,step3,step4,step5,step6][n]();
+  window.scrollTo({top:0,behavior:'smooth'})}
+function restartOb(){Object.keys(OB.checks).forEach(k=>OB.checks[k]=false);OB.times={};goStep(1)}
+
+/* ---------- STEP 1 : credentials required ---------- */
+function step1(){
+  OB.clock='local';const c=$('clock');c.classList.remove('warn','crit');localClock();
+  $('main').innerHTML=`<div class="card">
+  <h2>Credentials Required at the Computer</h2>
+  <p>When sitting at the test station, you will be prompted to log in or launch your exam using:</p>
+  <table>
+   <tr><th style="width:30%">Credential</th><th>What it is</th></tr>
+   <tr><td><b>Prometric Confirmation Number</b></td><td>This is the <b>16-digit</b> unique booking confirmation number sent to your email when you scheduled your test.</td></tr>
+   <tr><td><b>Last Name / Surname</b></td><td>Must be typed exactly as it appears on your passport or official identification document.</td></tr>
+   <tr><td><b>Candidate ID / OET Number</b> <span class="mut">(if prompted)</span></td><td>Your <b>8-digit</b> OET Candidate Number (typically starting with <b>471…</b>) found in your official OET profile.</td></tr>
+  </table>
+  <div class="actions"><span style="flex:1"></span>
+   <button class="p" onclick="OB.checks.cred=true;goStep(2)">Continue to check-in →</button></div>
+  </div>`}
+
+/* ---------- STEP 2 : check-in & verifications ---------- */
+function step2(){const done=OB.checks.id;
+  OB.clock='local';
+  $('main').innerHTML=`<div class="card">
+  <h2>What Happens at the Computer Screen</h2>
+  <h3 style="margin-top:6px">1. Check-In &amp; Verifications</h3>
+  <p class="mut">Before you start typing on the computer, an invigilator/proctor verifies your physical identity document, takes your photo, and assigns you to a workstation.</p>
+  <div class="two">
+   <div>
+    <ul class="env">
+     <li>${done?'✓':'○'} Physical identity document checked by the invigilator</li>
+     <li>${done?'✓':'○'} Photo taken</li>
+     <li>${done?'✓':'○'} Workstation assigned</li>
+    </ul>
+    <div class="msg ${done?'okm':'wait'}" id="idStatus">${done?'✓ Photo taken & ID verified — workstation assigned':'● Check-in not yet completed'}</div>
+    <button class="p" id="btnScan" onclick="runScan()" ${done?'disabled':''}>${done?'✓ Check-in complete':'▶ Start check-in (ID check & photo)'}</button>
+   </div>
+   <div>
+    <div class="cam ${done?'ok':''}" id="cam">
+      <div class="corners"><i></i><i></i><i></i><i></i></div>
+      <div class="scanline ${done?'':'run'}" id="scanline"></div>
+      <svg class="silh" viewBox="0 0 24 24" fill="#5a6b7d"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6Z"/></svg>
+      <div class="camtxt" id="camtxt">${done?'✓ PHOTO TAKEN':'CAMERA PREVIEW — SIMULATION'}</div>
+    </div>
+    <p class="mut">Simulation mode: if you grant camera access it is shown locally only — nothing is stored or transmitted.</p>
+   </div>
+  </div>
+  <div class="actions"><button class="s" onclick="goStep(1)">← Back</button><span style="flex:1"></span>
+   <button class="p" id="go3" onclick="goStep(3)" ${done?'':'disabled'}>Proceed to Login Screen →</button></div>
+  </div>`}
+async function runScan(){if(OB.scan)return;OB.scan=true;
+  const cam=$('cam'),line=$('scanline'),txt=$('camtxt'),st=$('idStatus'),b=$('btnScan');
+  b.disabled=true;st.className='msg run';st.textContent='● Check-in in progress…';line.classList.add('run');
+  let stream=null;
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});
+    const v=document.createElement('video');v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=stream;v.className='camvid';cam.prepend(v)}catch(e){}
+  txt.textContent='CHECKING IDENTITY DOCUMENT…';await obWait(1500);
+  txt.textContent='TAKING PHOTO…';await obWait(1500);
+  line.classList.remove('run');cam.classList.add('ok');txt.textContent='✓ PHOTO TAKEN';
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  cam.querySelectorAll('video').forEach(v=>v.remove());
+  st.className='msg okm';st.innerHTML='✓ Photo taken &amp; ID verified — workstation assigned';
+  OB.checks.id=true;OB.times.id=new Date().toTimeString().slice(0,5);
+  b.textContent='✓ Check-in complete';toast('Check-in complete');
+  const g=$('go3');if(g)g.disabled=false;OB.scan=false}
+
+/* ---------- STEP 3 : login screen ---------- */
+function step3(){
+  OB.clock='local';
+  const conf=localStorage.getItem('conf')||'',ln=localStorage.getItem('lname')||'',oet=localStorage.getItem('oetno')||'';
+  $('main').innerHTML=`<div class="card">
+  <h2>Login Screen</h2>
+  <p class="mut">Enter your Confirmation Number and Last Name on the launch screen.</p>
+  <div style="max-width:520px">
+   <table>
+    <tr><td><b>Prometric Confirmation Number</b><br><span class="mut">16 digits</span></td><td><input type="text" id="lgConf" inputmode="numeric" maxlength="16" placeholder="16-digit number" value="${esc(conf)}" style="width:100%" oninput="lgSave()"></td></tr>
+    <tr><td><b>Last Name / Surname</b><br><span class="mut">Exactly as on your ID</span></td><td><input type="text" id="lgName" placeholder="e.g. Mercer" value="${esc(ln)}" style="width:100%" oninput="lgSave()"></td></tr>
+    <tr><td><b>Candidate ID / OET Number</b><br><span class="mut">If prompted · 8 digits, starts 471</span></td><td><input type="text" id="lgOet" inputmode="numeric" maxlength="8" placeholder="47xxxxxx" value="${esc(oet)}" style="width:100%" oninput="lgSave()"></td></tr>
+   </table>
+   <div class="msg wait" id="lgMsg"></div>
+  </div>
+  <div class="actions"><button class="s" onclick="goStep(2)">← Back</button><span class="mut" id="s1hint"></span><span style="flex:1"></span>
+   <button class="p" id="goLogin" onclick="doLogin()" disabled>Log in →</button></div>
+  </div>`;lgSave()}
+function lgSave(){
+  const conf=$('lgConf').value.replace(/\D/g,''),ln=$('lgName').value.trim(),oet=$('lgOet').value.replace(/\D/g,'');
+  if($('lgConf').value!==conf)$('lgConf').value=conf;if($('lgOet').value!==oet)$('lgOet').value=oet;
+  localStorage.setItem('conf',conf);localStorage.setItem('lname',ln);localStorage.setItem('oetno',oet);
+  const okC=conf.length===16,okN=ln.length>1,okO=oet===''||(oet.length===8&&oet.startsWith('471'));
+  const m=$('lgMsg');
+  if(!okC){m.className='msg wait';m.textContent='● Confirmation number must be 16 digits ('+conf.length+'/16)'}
+  else if(!okN){m.className='msg wait';m.textContent='● Enter your last name'}
+  else if(!okO){m.className='msg bad';m.textContent='✗ OET Candidate Number must be 8 digits and typically starts with 471'}
+  else{m.className='msg okm';m.textContent='✓ Ready to log in'}
+  $('goLogin').disabled=!(okC&&okN&&okO)}
+function doLogin(){lgSave();if($('goLogin').disabled)return;
+  const ln=localStorage.getItem('lname')||'';
+  const parts=CAND.trim().split(/\s+/);parts.pop();
+  CAND=(parts.join(' ')+' '+ln).trim();localStorage.setItem('cand',CAND);$('candLbl').textContent='Candidate: '+CAND;
+  OB.checks.login=true;OB.times.login=new Date().toTimeString().slice(0,5);toast('Login successful');goStep(4)}
+
+/* ---------- STEP 4 : verification & instructions ---------- */
+function step4(){const done=OB.checks.audio,conf=OB.checks.details;
+  OB.clock='local';
+  const oet=localStorage.getItem('oetno')||'—',prof=localStorage.getItem('prof')||'Pharmacy';
+  $('main').innerHTML=`<div class="card">
+  <h2>Verification &amp; Instructions</h2>
+  <div class="two">
+   <div>
+    <table><tr><th colspan="2">Your details</th></tr>
+     <tr><td><b>Full Name</b></td><td>${esc(CAND)}</td></tr>
+     <tr><td><b>OET Candidate Number</b></td><td>${esc(oet)}</td></tr>
+     <tr><td><b>Profession</b></td><td>${esc(prof)} <span class="mut">(change in ⚙ Settings)</span></td></tr>
+     <tr><td><b>Test Type</b></td><td>OET on Computer</td></tr></table>
+    <label class="demoopt"><input type="checkbox" id="detOk" ${conf?'checked':''} onchange="OB.checks.details=this.checked;obCheck4()"> I have carefully checked that all my personal information is correct.</label>
+    <h3>Scheduled modules</h3>
+    <table><tr><th>Module</th><th>Format</th></tr>
+     <tr><td>Listening</td><td>42 questions · recordings play once</td></tr>
+     <tr><td>Reading</td><td>Part A (15:00) · Parts B &amp; C (shared 45:00)</td></tr>
+     <tr><td>Writing</td><td>One letter · 45 minutes</td></tr>
+     <tr><td>Speaking</td><td>2 role-plays with interlocutor</td></tr></table>
+   </div>
+   <div>
+    <h3 style="margin-top:0">Headset audio check</h3>
+    <p class="mut">Put your headset on. A 440 Hz test tone plays in the <b>left</b> ear, then the <b>right</b> ear.</p>
+    <div class="player"><button class="p" id="toneBtn" onclick="playTone()">${done?'↻ Play test tone again':'▶ Play test tone'}</button>
+     <span class="chip" id="chL">L</span><span class="chip" id="chR">R</span></div>
+    <label class="mut">Volume</label>
+    <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" style="width:100%">
+    <div class="msg ${done?'okm':'wait'}" id="audStatus">${done?'✓ Stereo detected — left &amp; right channels clear':'● Audio not yet tested'}</div>
+    <p class="mut">Next, you will go through brief tutorial pages outlining how the computer system works (e.g. how to highlight text, flag questions, and use the volume slider).</p>
+   </div>
+  </div>
+  <div class="actions">
+   <button class="s" onclick="goStep(3)">← Back</button><span class="mut" id="s4hint"></span><span style="flex:1"></span>
+   <button class="p" id="go5" onclick="goStep(5)" disabled>Proceed to Tutorial →</button>
+  </div></div>`;obCheck4()}
+function obCheck4(){const g=$('go5');if(!g)return;
+  const d=OB.checks.details,a=OB.checks.audio;g.disabled=!(d&&a);
+  const h=$('s4hint');if(h)h.textContent=!d?'Confirm your details are correct.':!a?'Complete the audio check.':'Ready to continue.'}
+async function playTone(){if(OB.tone)return;OB.tone=true;
+  const b=$('toneBtn');b.disabled=true;
+  $('audStatus').className='msg run';$('audStatus').textContent='● Playing test tone… listen in both ears';
+  try{
+    OB.ac=OB.ac||new (window.AudioContext||window.webkitAudioContext)();await OB.ac.resume();
+    OB.gain=OB.gain||OB.ac.createGain();OB.gain.gain.value=VOL();OB.gain.connect(OB.ac.destination);
+    await obTone(-1,'chL');await obTone(1,'chR');
+    OB.checks.audio=true;OB.times.audio=new Date().toTimeString().slice(0,5);
+    $('audStatus').className='msg okm';$('audStatus').innerHTML='✓ Stereo detected — left &amp; right channels clear';
+    obCheck4();toast('Audio check passed');b.textContent='↻ Play again';
+  }catch(e){$('audStatus').className='msg bad';$('audStatus').textContent='✗ Audio test failed: '+e.message;b.textContent='▶ Retry tone'}
+  b.disabled=false;OB.tone=false}
+function obTone(pan,chipId){return new Promise(res=>{
+  const o=OB.ac.createOscillator();o.type='sine';o.frequency.value=440;
+  const g=OB.ac.createGain();const chip=$(chipId);chip.classList.add('on');
+  const t=OB.ac.currentTime;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.5,t+.08);g.gain.setValueAtTime(.5,t+1);g.gain.linearRampToValueAtTime(0,t+1.2);
+  o.connect(g);
+  if(OB.ac.createStereoPanner){const p=OB.ac.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(OB.gain)}else g.connect(OB.gain);
+  o.start(t);o.stop(t+1.25);
+  setTimeout(()=>{chip.classList.remove('on');res()},1400)})}
+
+/* ---------- STEP 3 : tutorial ---------- */
+function step5(){OB.page=1;OB.clock='tutorial';
+  $('main').innerHTML=`<div class="card">
+   <div class="tuthead"><h2 style="margin:0">On-screen software tutorial</h2>
+    <span class="mut">Guided tour · <b id="tutClock">10:00</b> remaining — auto-continues at 00:00</span></div>
+   <div id="tutBody"></div>
+   <div class="actions">
+    <button class="s" onclick="goStep(4)">← Back</button>
+    <span class="mut" id="tutPos"></span><span style="flex:1"></span>
+    <button class="s" id="tutPrev" onclick="tutNav(-1)">◀ Previous</button>
+    <button class="p" id="tutNext" onclick="tutNav(1)">Next ▶</button>
+   </div></div>`;
+  startTut();tutDraw()}
+function startTut(){clearInterval(OB.tick);OB.left=600;drawTutClock();
+  OB.tick=setInterval(()=>{OB.left--;drawTutClock();
+    if(OB.left===300)toast('Tutorial: 5 minutes remaining');
+    if(OB.left===60)toast('Tutorial: 1 minute remaining');
+    if(OB.left<=0){clearInterval(OB.tick);finishTut(true)}},1000)}
+function drawTutClock(){const m=String(Math.floor(Math.max(OB.left,0)/60)).padStart(2,'0'),s=String(Math.max(OB.left,0)%60).padStart(2,'0');
+  $('tutClock').textContent=m+':'+s;
+  const c=$('clock');c.textContent='Time left: '+m+':'+s;
+  c.classList.toggle('warn',OB.left<=300&&OB.left>60);c.classList.toggle('crit',OB.left<=60)}
+function finishTut(auto){if(OB.checks.tut)return;
+  OB.checks.tut=true;OB.times.tut=new Date().toTimeString().slice(0,5);
+  if(auto)toast('Tutorial time ended — continuing automatically');
+  goStep(6)}
+function tutNav(d){if(d>0&&OB.page===TUT.length){finishTut(false);return}
+  OB.page=Math.min(TUT.length,Math.max(1,OB.page+d));tutDraw()}
+const TUT=[
+{t:'Screen layout & navigation',h:`
+ <p>Every sub-test uses the same <b>split-screen layout</b>:</p>
+ <div class="mock">
+  <div><b>Left — source panel</b><p class="mut" style="margin:6px 0 0">Reading passages, the audio player, or your case notes appear here. In Reading you can highlight text in this panel.</p></div>
+  <div><b>Right — question panel</b><p class="mut" style="margin:6px 0 0">Questions, answer options, gap-fill inputs and flag buttons appear here. Answers save automatically.</p></div>
+ </div>
+ <h3>One question at a time (Listening & Reading Parts B & C)</h3>
+ <div style="border:1px dashed #9fb3c8;background:#f8fafc;padding:12px;border-radius:4px">
+  <b>Question 3 of 22</b>
+  <p>What is the main purpose of the email?</p>
+  <label class="demoopt"><input type="radio" disabled> A. To announce a staffing change</label>
+  <label class="demoopt"><input type="radio" disabled> B. To request a prescription delivery</label>
+  <label class="demoopt"><input type="radio" disabled> C. To confirm a clinic appointment</label>
+  <div class="actions" style="margin-top:10px">
+   <button class="s" disabled>◀ Back</button><button class="p">Next ▶</button>
+   <span class="mut">Move between questions with <b>Back / Next</b> or the ◀ ▶ <b>arrow keys</b>. The last question shows <b>Submit part</b>.</span>
+  </div>
+ </div>`},
+{t:'Answer tools',h:`
+ <h3 style="margin-top:6px">Flag & Review grid</h3>
+ <p>Click <b>⚑ Flag for review</b> to mark any question. Open <b>Review ▤</b> to see every question at a glance — <span class="sw g"></span> answered, <span class="sw fo"></span> flagged, <span class="sw w"></span> unanswered — and click a cell to jump to it.</p>
+ <div class="revgrid" id="demoGrid"></div>
+ <h3>Option elimination (strike-through)</h3>
+ <p><b>Right-click</b> an option to strike it out; right-click again to restore it. (Touch devices: double-tap.) Eliminated options are never counted as your answer.</p>
+ <label class="demoopt">A. Try right-clicking me to strike this out</label>
+ <label class="demoopt">B. A distractor you want to eliminate</label>
+ <label class="demoopt">C. Another option</label>
+ <h3>Text highlighter</h3>
+ <p>Turn the highlighter on, then select text in the passage to mark it:</p>
+ <div class="tools">
+  <button class="s" id="hlDemoBtn" onclick="hlToggle($('hlDemoBtn'))">✏ Highlighter: OFF</button>
+  <button class="s" onclick="clearHl()">Clear highlights</button>
+  <span class="mut">Tip: highlighting is for your reference only — it is not marked.</span>
+ </div>
+ <div class="tx hlable" id="hlDemoText">Warfarin requires regular INR monitoring because its anticoagulant effect varies widely between patients. Many commonly prescribed medicines — including antibiotics such as clarithromycin — potentiate its effect and increase the risk of bleeding.</div>`},
+{t:'Audio & timing rules',h:`
+ <h3 style="margin-top:6px">Audio behaviour</h3>
+ <div class="player">
+  <button class="p" id="mockPlay" onclick="mockPlay()">▶ Play audio (once)</button>
+  <div class="ptrack"><div class="pfill" id="mockFill"></div></div>
+  <span class="mut" id="mockTime"></span>
+  <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" style="width:90px" title="Volume">
+ </div>
+ <p class="mut">Recordings play <b>ONCE only</b> — you cannot pause, replay or change the speed. Use the slider to set a comfortable volume now.</p>
+ <h3>Combined timing</h3>
+ <p>Reading <b>Parts B & C share a single 45-minute timer</b> — time left after Part B carries into Part C, and you cannot return to Part B once submitted. Listening Part A and Reading Part A run on their own timers.</p>
+ <h3>Countdown warnings & auto-submit</h3>
+ <p>The countdown sits top-right at all times: <b>amber at 5 minutes</b>, <b>flashing red at 1 minute</b>, and answers <b>submit automatically at 00:00</b>. Preview each state on the real header clock:</p>
+ <div class="actions" style="margin-top:8px">
+  <button class="s" onclick="previewClock('warn')">Preview 5-min (amber)</button>
+  <button class="s" onclick="previewClock('crit')">Preview 1-min (flashing red)</button>
+  <button class="s" onclick="previewClock('zero')">Preview 00:00 auto-submit</button>
+ </div>`}];
+function tutDraw(){const p=TUT[OB.page-1];
+  $('tutBody').innerHTML=`<div class="tuttag">Screen ${OB.page} of ${TUT.length} — ${p.t}</div>`+p.h;
+  if(OB.page===2)buildDemoGrid();
+  $('tutPrev').disabled=OB.page===1;
+  $('tutNext').textContent=OB.page===TUT.length?'Finish Tutorial ✓':'Next ▶';
+  $('tutPos').textContent='Screen '+OB.page+' / '+TUT.length}
+function buildDemoGrid(){const st=['a','a','fa','','a','f','','a','','fa','a',''];
+  $('demoGrid').innerHTML=st.map((s,i)=>`<button class="pv ${s.includes('a')?'ans':''} ${s.includes('f')?'fl':''}" onclick="toast('In the exam, clicking a cell jumps straight to question ${i+1}')">${i+1}</button>`).join('')}
+function mockPlay(){const b=$('mockPlay');if(!b||b.disabled)return;
+  b.disabled=true;b.textContent='❚❚ Playing…';
+  OB.ac=OB.ac||new (window.AudioContext||window.webkitAudioContext)();OB.ac.resume();
+  OB.gain=OB.gain||OB.ac.createGain();OB.gain.gain.value=VOL();OB.gain.connect(OB.ac.destination);
+  const o=OB.ac.createOscillator();o.type='sine';o.frequency.value=440;o.connect(OB.gain);o.start();
+  const t0=performance.now(),dur=3000;cancelAnimationFrame(OB.raf);
+  const st=t=>{const pc=Math.min(1,(t-t0)/dur),f=$('mockFill'),tm=$('mockTime');
+    if(f)f.style.width=(pc*100)+'%';
+    if(tm)tm.textContent='0:0'+Math.floor(pc*3)+' / 0:03';
+    if(pc<1)OB.raf=requestAnimationFrame(st);
+    else{o.stop();if(b.isConnected)b.textContent='✔ Audio played';
+      toast('Recording finished — replay is locked, as in the real test')}};
+  OB.raf=requestAnimationFrame(st)}
+function previewClock(state){clearTimeout(OB.pvT);const c=$('clock');
+  if(state==='zero'){c.classList.add('crit');c.classList.remove('warn');c.textContent='Time left: 00:00';toast('Time is up — your answers are submitted automatically')}
+  else if(state==='crit'){c.classList.add('crit');c.classList.remove('warn');c.textContent='Time left: 00:59'}
+  else{c.classList.add('warn');c.classList.remove('crit');c.textContent='Time left: 04:58'}
+  OB.pvT=setTimeout(()=>{if(OB.clock==='tutorial')drawTutClock();
+    else{c.classList.remove('warn','crit');if(OB.clock==='local')localClock()}},3500)}
+
+/* ---------- STEP 6 : start exam ---------- */
+function step6(){clearInterval(OB.tick);OB.clock='none';
+  const c=$('clock');c.textContent='✓ READY';c.classList.remove('warn','crit');
+  const t=OB.times;
+  $('main').innerHTML=`<div class="card center">
+   <div class="bigok">✓</div>
+   <h2 style="margin-bottom:2px">Starting the Test</h2>
+   <p class="mut">You have confirmed your details and completed the system check and tutorial. Click <b>Start Exam</b> to begin. Your test starts with <b>Listening</b>; once started, the timer runs continuously and your answers submit automatically at 00:00.</p>
+   <table class="sum">
+    <tr><td>Check-in &amp; ID verified</td><td class="ok">✓ ${esc(t.id||'—')}</td></tr>
+    <tr><td>Login</td><td class="ok">✓ ${esc(t.login||'—')}</td></tr>
+    <tr><td>Details confirmed / audio check</td><td class="ok">✓ ${esc(t.audio||'—')}</td></tr>
+    <tr><td>Software tutorial</td><td class="ok">✓ ${esc(t.tut||'—')}</td></tr>
+   </table>
+   <button class="p bigbtn" onclick="finishOnboarding(nextOpenSec())">▶ ${hasProg()?'Continue Exam':'Start Exam'} — ${SECNAME[nextOpenSec()]}</button>
+   <p class="mut" style="margin-top:16px">Sections unlock in order: Listening → Reading → Writing → Speaking.</p>
+   <div class="msg okm" style="text-align:left;max-width:560px;margin:18px auto 0"><b>Tip for Test Day:</b> Keep your official booking confirmation email (or a printout) handy along with your original valid ID. Invigilators in the test center will guide you step-by-step if you run into any issues entering your details.</div></div>`;
+  obUpdateKeyBanners()}
+
+/* ==================== built-in demo engine (no API key needed) ==================== */
+const DEMO={
+ L:{title:'Listening — Part B demo extract',ctx:'You hear a pharmacist taking a telephone call at a community pharmacy.',audioSec:5,
+  script:[['Caller (GP surgery)',"Hello, Riverside Surgery here — this is Tom Bradley, practice pharmacist. I'm calling about Mrs Denise Fairweather, DOB 14 March 1958. We've just electronically sent a prescription for apixaban 2.5 milligrams twice daily, but I understand she gets her warfarin from you."],
+   ['Pharmacist',"That's right. She had her INR checked yesterday — it came back at 4.1, so it's above range at the moment. Has the GP considered holding the apixaban until the combination has been reviewed?"],
+   ['Caller (GP surgery)',"Yes, the plan has been adjusted. Please dispense the apixaban, but put a hold on her warfarin for the next three days, and ask her to book an INR recheck for Friday."]],
+  qs:[
+   {q:'Why is Tom Bradley calling the pharmacy?',opts:['A. To chase a repeat delivery','B. To flag a new prescription alongside her warfarin','C. To book an INR blood test'],a:'B'},
+   {q:"What does the pharmacist say about the INR result?",opts:['A. It is above the therapeutic range','B. It is within the normal range','C. It has not yet been checked'],a:'A'},
+   {q:"What must the pharmacy do with the warfarin?",opts:['A. Dispense it as normal','B. Contact the patient\u2019s consultant first','C. Withhold supply for three days'],a:'C'}]},
+ R:{title:'Reading — Part B demo text',ctx:'Choose the best answer according to the memo.',audioSec:0,
+  memo:"From: Chief Pharmacist\nRe: Controlled drugs (CD) cupboard audits\n\nWith effect from Monday 3 June, the CD cupboard must be audited at the START of each shift rather than at the end, as previously. The outgoing and incoming pharmacists count the stock together and both sign the register. Any discrepancy, whatever the amount, must be reported to the duty manager before handover is completed. The register must remain in the dispensary at all times. Electronic temperature logs for the CD refrigerator should be checked during the same audit.",
+  qs:[
+   {q:'What has changed in the audit procedure?',opts:['A. Audits now take place at the start of each shift','B. Only discrepancies above a set amount are reported','C. The register may now be stored electronically'],a:'A'},
+   {q:'Who signs the register after the stock count?',opts:['A. The duty manager only','B. The chief pharmacist','C. Both the outgoing and incoming pharmacists'],a:'C'},
+   {q:'What else should be checked during the same audit?',opts:['A. The dispensary computer backups','B. The CD refrigerator temperature logs','C. The outgoing delivery invoices'],a:'B'}]}};
+function obDemo(t){
+ if(!DEMO[t]){
+  const nm={W:'Writing',S:'Speaking'}[t]||t;
+  $('main').innerHTML=`<div class="card center"><h2>${nm} — needs the AI engine</h2>
+  <p class="mut">The ${nm} sub-test is generated and marked by AI, so it needs a Gemini API key (⚙ Settings). Built-in keyless demos exist for Listening and Reading only.</p>
+  <button class="p" onclick="goStep(6)">← Back to readiness check</button></div>`;return}
+ OB.demo={mod:t,cur:0,ans:{},flags:{},strikes:{},played:false,done:false};
+ if($('rail'))$('rail').style.display='none';
+ const c=$('clock');c.textContent='Demo';c.classList.remove('warn','crit');
+ $('secLabel').textContent='Demo · '+DEMO[t].title;
+ demoDraw()}
+function demoDraw(){if(!OB.demo)return;
+ const D=DEMO[OB.demo.mod],dm=OB.demo,n=dm.cur,q=D.qs[n],flag=!!dm.flags[n];let h='';
+ if(dm.mod==='L'){
+  h=`<div class="card"><div class="tuthead"><h2 style="margin:0">${D.title}</h2><span class="mut">Built-in demo · no API key needed</span></div>
+  <p class="mut">${esc(D.ctx)}</p>
+  <div class="player"><button class="p" id="dPlay" onclick="demoAudio()"${dm.played?' disabled':''}>${dm.played?'✔ Audio played':'▶ Play audio (once)'}</button>
+  <div class="ptrack"><div class="pfill" id="dFill"></div></div><span class="mut" id="dTime"></span></div>
+  <p class="mut">Plays once — no pause or replay, as in the real test.</p></div>`;
+ }else{
+  h=`<div class="card"><div class="tuthead"><h2 style="margin:0">${D.title}</h2><span class="mut">Built-in demo · no API key needed</span></div><p class="mut">${esc(D.ctx)}</p></div>
+  <div class="dsplit"><div class="card"><div class="tools">
+  <button class="s" id="dHl" onclick="hlToggle($('dHl'))">✏ Highlighter: OFF</button>
+  <button class="s" onclick="clearHl()">Clear highlights</button>
+  <span class="mut">Select text in the memo to highlight it.</span></div>
+  <div class="tx hlable" style="max-height:420px;overflow:auto">${esc(D.memo)}</div></div>`}
+ h+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+ <b>Question ${n+1} of ${D.qs.length}</b>
+ <button class="s${flag?' flagged':''}" onclick="demoFlag(${n})">${flag?'⚑ Flagged — click to unflag':'⚑ Flag for review'}</button></div>
+ <p>${esc(q.q)}</p>
+ ${q.opts.map(o=>{const L=o[0],st=(dm.strikes[n]||[]).indexOf(L)>-1;
+  return `<label class="dopt${st?' strike':''}" data-q="${n}" data-v="${L}"><input type="radio" name="dq"${dm.ans[n]===L?' checked':''} onchange="demoAns('${L}')"> ${esc(o)}</label>`}).join('')}
+ <p class="mut">Right-click an option to eliminate it · ◀ ▶ arrow keys to navigate.</p></div>`;
+ if(dm.mod==='R')h+=`</div>`;
+ h+=`<div class="dbar"><button class="s" onclick="demoNav(-1)"${n===0?' disabled':''}>◀ Back</button>
+ <span class="mut">Question ${n+1} / ${D.qs.length} · ${Object.keys(dm.ans).length} answered</span><span style="flex:1"></span>
+ <button class="s" onclick="demoReview()">Review ▤</button>
+ <button class="p" onclick="demoNav(1)">${n===D.qs.length-1?'Submit part ✓':'Next ▶'}</button></div>`;
+ $('main').innerHTML=h}
+function demoAns(L){if(OB.demo)OB.demo.ans[OB.demo.cur]=L}
+function demoFlag(n){OB.demo.flags[n]?delete OB.demo.flags[n]:OB.demo.flags[n]=1;demoDraw()}
+function demoNav(d){const D=DEMO[OB.demo.mod],dm=OB.demo;
+ if(d>0&&dm.cur===D.qs.length-1)return demoSubmit();
+ dm.cur=Math.min(D.qs.length-1,Math.max(0,dm.cur+d));demoDraw()}
+function demoAudio(){const b=$('dPlay');if(!b||b.disabled)return;b.disabled=true;b.textContent='❚❚ Playing…';
+ OB.ac=OB.ac||new (window.AudioContext||window.webkitAudioContext)();OB.ac.resume();
+ OB.gain=OB.gain||OB.ac.createGain();OB.gain.gain.value=VOL();OB.gain.connect(OB.ac.destination);
+ const o=OB.ac.createOscillator();o.type='sine';o.frequency.value=440;o.connect(OB.gain);o.start();
+ const dur=(DEMO[OB.demo.mod].audioSec||5)*1000,t0=performance.now();cancelAnimationFrame(OB.raf);
+ const st=t=>{const pc=Math.min(1,(t-t0)/dur),f=$('dFill'),tm=$('dTime');
+  if(f)f.style.width=(pc*100)+'%';
+  if(tm)tm.textContent='0:'+String(Math.floor(pc*dur/1000)).padStart(2,'0')+' / 0:'+String(dur/1000).padStart(2,'0');
+  if(pc<1)OB.raf=requestAnimationFrame(st);
+  else{o.stop();OB.demo.played=true;const bb=$('dPlay');if(bb){bb.textContent='✔ Audio played';bb.disabled=true}
+   toast('Recording finished — replay locked')}};OB.raf=requestAnimationFrame(st)}
+function demoReview(){let d=$('dRev');if(!d){d=document.createElement('dialog');d.id='dRev';document.body.appendChild(d)}
+ const D=DEMO[OB.demo.mod],dm=OB.demo;
+ d.innerHTML=`<h3 style="margin-top:0">Review questions</h3><div class="revgrid">${
+  D.qs.map((_,i)=>`<button class="pv ${dm.ans[i]?'ans':''} ${dm.flags[i]?'fl':''}" onclick="demoJump(${i})">${i+1}</button>`).join('')}</div>
+  <p class="mut">Green = answered · amber outline = flagged · white = unanswered</p>
+  <p style="text-align:right;margin:12px 0 0"><button class="s" onclick="$('dRev').close()">Return</button>
+  <button class="p" onclick="$('dRev').close();demoSubmit()">Submit part</button></p>`;
+ d.showModal()}
+function demoJump(i){$('dRev').close();OB.demo.cur=i;demoDraw()}
+function demoSubmit(){const D=DEMO[OB.demo.mod],dm=OB.demo;dm.done=true;
+ let ok=0,rows='';
+ D.qs.forEach((q,i)=>{const a=dm.ans[i]||'',good=a===q.a;if(good)ok++;
+  rows+=`<tr class="${good?'rok':'rbad'}"><td>${i+1}</td><td>${a?esc(a):'<span class="mut">not answered</span>'}</td><td>${esc(q.a)}</td><td>${good?'<span class="ok">✓</span>':'<span class="bad">✗</span>'}</td></tr>`});
+ const script=dm.mod==='L'?`<details open><summary>Audio script</summary><div class="tx">${D.script.map(([s,t])=>`<b>${esc(s)}:</b> ${esc(t)}`).join('\n\n')}</div></details>`:'';
+ $('main').innerHTML=`<div class="card"><h2>Demo result — ${ok} / ${D.qs.length}</h2>
+ <p class="mut">This mini-demo is illustrative. The full AI-generated, AI-marked sub-tests need a Gemini API key (⚙ Settings).</p>
+ <table><tr><th>#</th><th>Your answer</th><th>Correct</th><th></th></tr>${rows}</table>${script}
+ <div class="dbar"><button class="s" onclick="goStep(6)">← Back to readiness check</button>
+ <button class="p" onclick="finishOnboarding('${dm.mod}')">Open the full engine →</button></div></div>`;
+ window.scrollTo({top:0,behavior:'smooth'})}
+/* demo interactions */
+document.addEventListener('contextmenu',e=>{const o=e.target.closest('.dopt');if(!o||!OB.demo||OB.demo.done)return;
+ e.preventDefault();o.classList.toggle('strike');
+ const n=+o.dataset.q,v=o.dataset.v,s=OB.demo.strikes[n]=OB.demo.strikes[n]||[],i=s.indexOf(v);i<0?s.push(v):s.splice(i,1)});
+document.addEventListener('dblclick',e=>{const o=e.target.closest('.dopt');if(!o||!OB.demo||OB.demo.done)return;
+ o.classList.toggle('strike');
+ const n=+o.dataset.q,v=o.dataset.v,s=OB.demo.strikes[n]=OB.demo.strikes[n]||[],i=s.indexOf(v);i<0?s.push(v):s.splice(i,1)});
+document.addEventListener('keydown',e=>{if(!OB.demo||OB.demo.done)return;
+ const t=document.activeElement;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
+ if(document.querySelector('dialog[open]'))return;
+ if(e.key==='ArrowRight')demoNav(1);else if(e.key==='ArrowLeft')demoNav(-1)});
+
+/* ==================== AI exam engine ==================== */
+async function gem(c,json=true,sys){
+ if(!key){openSet();throw new Error('Add your Gemini API key first (⚙ Settings).')}
+ const body={contents:typeof c==='string'?[{role:'user',parts:[{text:c}]}]:c,generationConfig:json?{responseMimeType:'application/json',maxOutputTokens:16000}:{}};
+ if(sys)body.systemInstruction={parts:[{text:sys}]};
+ const modelsToTry=[...new Set([currentModel,'gemini-3.8-flash','gemini-3.1-flash-lite'])];
+ let lastError;
+ for(const model of modelsToTry){
+  try{
+   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   const d=await r.json();if(d.error)throw new Error(d.error.message);
+   const t=d.candidates[0].content.parts[0].text;return json?JSON.parse(t.replace(/```json|```/g,'').trim()):t;
+  }catch(e){lastError=e}
+ }
+ throw new Error(lastError?lastError.message:'All models are currently busy or unavailable.')}
+
+/* timer */
+function timer(s,done,label='Time left'){clearInterval(tick);if(EX)EX.remaining=s;
+ const f=()=>{const m=String(Math.floor(Math.max(s,0)/60)).padStart(2,'0'),ss=String(Math.max(s,0)%60).padStart(2,'0');
+  $('clock').textContent=label+': '+m+':'+ss;
+  $('clock').classList.toggle('warn',s<=300&&s>60);$('clock').classList.toggle('crit',s<=60)};
+ f();tick=setInterval(()=>{s--;if(EX)EX.remaining=s;f();
+  if(s===300)toast('5 minutes remaining');if(s===60)toast('1 minute remaining');
+  if(s<=0){clearInterval(tick);toast('Time is up – your answers are being submitted…');done&&done()}},1000)}
+function mmss(){clearInterval(tick);$('clock').textContent='--:--';$('clock').classList.remove('warn','crit')}
+
+/* exam specification */
+const J='Return JSON only: {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":""}]}]}. Omit unused fields. For multiple-choice, "answer" is the letter; for gap-fill/short-answer omit "options" and give a 1-3 word "answer". Use realistic, British-English pharmacy content as in the official OET.';
+const SPEC={
+L:{name:'Listening',parts:{
+ A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
+
+Task: Generate exactly 2 realistic OET Listening Part A scenarios. Each scenario must include a full dialogue transcript, a completion exercise (notes form) with 12 gaps, and an answer key with context snippets.
+
+Requirements:
+
+1. Scenario & Context:
+   * Consultation Type: a consultation between a healthcare professional (the pharmacist, or another clinician) and a patient (or the patient's relative).
+   * Medical Condition: choose a different, realistic condition for each extract (for example asthma management, knee pain and NSAIDs, type 2 diabetes, hypertension, post-operative recovery, a skin condition, a child's ear infection). The two extracts must involve different patients and different conditions.
+   * Target Audio Duration: 4 to 5 minutes when recorded/spoken.
+   * Transcript Length: 600 to 750 words per extract (never more than 750), roughly 35-50 short turns, so that it sounds natural at a conversational pace.
+
+2. Part 1: The Listening Transcript ("dialogue"):
+   * Write a natural-sounding consultation between the Pharmacist and the Patient in spoken British English.
+   * Include typical features of spoken medical consultations: clarification, realistic pauses/hesitations (well, erm, you know), brief back-and-forth exchanges, and symptoms described in non-expert, everyday language.
+   * Include at least one self-correction or distractor (e.g. the patient first says one number or name, then corrects it).
+   * Make the dialogue unfold logically so that the answers to the 12 note gaps appear in chronological order.
+
+3. Part 2: The Candidate Notes (12 gapped questions per extract):
+   * Create a structured note-taking form under 3-4 clear headings (e.g. Patient details / Presenting complaint / Medical history and medication / Advice and plan).
+   * Write the notes in clinical, paraphrased wording (never copying the patient's words), so they still read as grammatical, useful notes once filled in.
+   * Include EXACTLY 12 fill-in-the-blank gaps (numbered 1-12 in order down the form). Write each gap as ____ (four underscores, nothing else). A note line may have at most 2 gaps.
+   * Rules for gaps:
+      * Each answer must be 1 to 3 words only (numbers allowed).
+      * Each answer must be the exact words spoken in the dialogue (copy the wording exactly).
+      * Each answer must be a specific detail: a symptom, drug, dose, number, duration, frequency, place, trigger or instruction. Never an article, a pronoun or a vague word, and never repeat the same answer twice.
+      * Order: gap 1 to gap 12 follow the order in which the information is spoken (gap 1 heard first, gap 12 last).
+      * Spacing: space the answers evenly across the whole consultation so candidates have time to write between gaps: gap 1 within the first fifth of the dialogue, gap 12 within the final fifth, about one gap per 50-60 words, never clustered.
+
+4. Part 3: Answer Key & Explanations:
+   * For each gap give the correct answer (the array "a").
+   * List acceptable variations (if any) in the array "v" (same order and length as "a"): for example "two times a day" for the answer "twice a day"; use "" when there is none. The answer in "a" itself must stay exactly as spoken.
+   * For each gap give the exact line or short context snippet from the transcript where the answer is heard (the array "x", same order and length as "a").
+
+OUTPUT: JSON only, no markdown fences, in exactly this shape. In every note line "t" holds the text with ____ for each gap, "a" is an array with the answer to each ____ in that line (left to right), and "v" is an array of acceptable variations (or "" for none), and "x" is an array with the transcript snippet for each of those answers. Heading lines have only "h". "lv" is 0 for a main note line and 1 for an indented sub-point. Use only the speaker names "Pharmacist" and "Patient".
+{"items":[{"title":"Extract 1: Consultation","context":"You hear a pharmacist talking to a patient who ...","dialogue":[{"s":"Pharmacist","t":"..."},{"s":"Patient","t":"..."}],"notes":[{"h":"Patient details"},{"t":"Reason for visit: recurrent ____ for the past ____","a":["answer 1","answer 2"],"v":["",""],"x":["snippet 1","snippet 2"],"lv":0},{"t":"Sub-point with a gap: ____","a":["answer 3"],"v":[""],"x":["snippet 3"],"lv":1}]},{"title":"Extract 2: Consultation","context":"...","dialogue":[],"notes":[]}]}`},
+ B:{min:10,t:'Part B – Workplace extracts',d:'6 questions · 6 short extracts · 3 options · audio plays ONCE · one question on screen at a time, as in the real software',p:`Role: You are an expert OET test item writer specializing in Listening Part B (Pharmacy).
+
+Task: Generate exactly 6 different, realistic OET Listening Part B scenarios. Each scenario must include a short audio transcript, one 3-option multiple-choice question, and an answer key with explanations.
+
+Requirements:
+
+1. Context & Length:
+   * Setting: a brief workplace interaction or briefing (for example a pharmacy handover, a team huddle, a phone call with a GP or ward nurse, a policy or protocol briefing, an equipment malfunction, a post-operative patient briefing).
+   * Topic: make each of the 6 extracts a different setting and topic.
+   * Target Audio Duration: 40 to 60 seconds when spoken.
+   * Transcript Length: 80 to 120 words per extract (never more than 120).
+
+2. Part 1: Audio Transcript ("dialogue"):
+   * Write a concise monologue (one speaker) or a brief 2-person dialogue typical of a healthcare setting, in British English.
+   * Use a natural professional register, realistic healthcare terminology, and subtle distractors (information that is mentioned but then changed, rejected or corrected).
+   * Give each extract a one-sentence "context" that tells the candidate who is speaking and where (for example "You hear a pharmacist handing over to a colleague at the end of a shift.").
+
+3. Part 2: Multiple-Choice Question (3 Options):
+   * Write exactly one question per extract testing the main point, purpose, opinion, or the specific action required.
+   * Provide 3 options, "A. ...", "B. ...", "C. ...", in OET style: all three plausible in the context, similar in length and grammatical form.
+   * Only one option is completely correct according to what is stated.
+   * Each distractor must pick up key words or phrases from the audio but change the meaning or a detail (wrong person, wrong time, wrong reason, wrong action).
+   * Vary the position of the correct answer across the 6 extracts.
+
+4. Part 3: Answer Key & Justification:
+   * "answer" is the single correct letter (for example "A").
+   * "exp" is a concise explanation (2-3 sentences) stating why the correct option is right (with the relevant words from the audio) and why each of the other two options is wrong.
+
+OUTPUT: JSON only, no markdown fences, in exactly this shape:
+{"items":[{"title":"Extract 1","context":"You hear ...","dialogue":[{"s":"Pharmacist","t":"..."}],"questions":[{"q":"...","options":["A. ...","B. ...","C. ..."],"answer":"B","exp":"B is correct because ... A is wrong because ... C is wrong because ..."}]}]}`},
+ C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · 6 questions each · 3 options · audio plays ONCE · one question on screen at a time',p:`Create OET Pharmacy Listening Part C: 2 different extracts (a pharmacist interview or presentation, about 550 words each), each with 6 multiple-choice questions (A, B, C) testing opinion, attitude, gist and detail. Use "dialogue". ${J}`}}},
+R:{name:'Reading',parts:{
+ A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`Create OET Pharmacy Reading Part A: 4 short related texts (Text A-D, about 150-200 words each: e.g. guideline, drug monograph, policy, patient leaflet) on ONE topic, in a single item using "texts". Add exactly 20 questions: first 7 matching ("Which text states...?" answer = letter A-D, no options), then 6 short-answer, then 7 sentence-completion (q contains ____). Answers 1-3 words or a letter. ${J}`},
+ B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`Create OET Pharmacy Reading Part B: 6 different short workplace texts (about 100 words: emails, memos, protocols, notices), each with 1 multiple-choice question (A, B, C). Put the full workplace text in the "text" field of each item (never leave it empty). ${J}`},
+ C:{min:45,t:'Part C – Longer texts',d:'Starts after Part B (shared timer)',p:`Create OET Pharmacy Reading Part C: 2 different texts (about 700 words each, journal-style articles on pharmacy practice or pharmacology), each with 8 multiple-choice questions (A, B, C, D) on detail, opinion, reference and inference. Put the full article in the "text" field of each item (never leave it empty). ${J}`}}}};
+
+/* sequential progression, permanent locks & scoring (per test attempt) */
+const ORDER={L:['A','B','C'],R:['A','B','C']};
+const SECS=['L','R','W','S'],SECNAME={L:'Listening',R:'Reading',W:'Writing',S:'Speaking'};
+const MAXS={L:{A:24,B:6,C:12},R:{A:20,B:6,C:16}},WMAX=38,SMAX=39,LMAX=24,CMAX=15; /* Writing 3+5x7=38 · Speaking per role-play: 4 linguistic x6=24 + 5 clinical x3=15 */
+const fmt=n=>+Number(n).toFixed(1);
+function clamp(n,max){n=Number(n);return isNaN(n)?0:Math.max(0,Math.min(max,n))}
+function blankProg(){return{L:{},R:{},W:{},S:{}}}
+function loadProg(){try{const o=JSON.parse(localStorage.getItem('attempt')||'null');return o&&o.L&&o.R?Object.assign(blankProg(),o):blankProg()}catch(e){return blankProg()}}
+let PROG=loadProg();
+function saveProg(){try{localStorage.setItem('attempt',JSON.stringify(PROG))}catch(e){}}
+function isDone(sk,pk){return !!(PROG[sk]&&PROG[sk][pk])}
+function hasProg(){return SECS.some(s=>Object.keys(PROG[s]||{}).length>0)}
+/* shared Reading B+C timer keeps running in real time after Part B is submitted */
+function crem(){const b=PROG.R.B;if(!b||b.rem==null)return 0;return Math.max(0,b.rem-Math.floor((Date.now()-b.t)/1000))}
+/* section-level locks: Listening -> Reading -> Writing -> Speaking */
+function secDone(s){
+ if(s==='L')return ORDER.L.every(k=>isDone('L',k));
+ if(s==='R')return isDone('R','A')&&isDone('R','B')&&(isDone('R','C')||crem()<=0);
+ if(s==='W')return isDone('W','T');
+ if(s==='S')return isDone('S',0)&&isDone('S',1);
+ return false}
+function prevSec(s){return SECS[SECS.indexOf(s)-1]}
+function secLocked(s){const i=SECS.indexOf(s);return i>0&&!secDone(SECS[i-1])}
+function nextOpenSec(){return SECS.find(s=>!secDone(s))||'L'}
+function partState(sk,pk){
+ if(isDone(sk,pk))return 'done';
+ if(secLocked(sk))return 'seclocked';
+ const i=ORDER[sk].indexOf(pk);
+ if(i>0&&!isDone(sk,ORDER[sk][i-1]))return 'locked';
+ if(sk==='R'&&pk==='C'&&crem()<=0)return 'expired';
+ return 'open'}
+function lockPart(sk,pk,extra){PROG[sk][pk]=Object.assign({at:Date.now()},extra||{});saveProg();refreshUI()}
+function setScore(sk,pk,score,max,extra){const r=PROG[sk][pk]||(PROG[sk][pk]={at:Date.now()});r.score=score;r.max=max;Object.assign(r,extra||{});saveProg();refreshUI()}
+function refreshUI(){try{drawScore();if($('nav'))drawNav(curTab)}catch(e){}}
+let curMenu='L';
+function newAttempt(){ask('Start a new attempt?','This resets <b>all</b> sections (Listening, Reading, Writing, Speaking) <b>and all scores</b>. Reading, Writing and Speaking will be locked again until the previous section is completed.',()=>{PROG=blankProg();saveProg();toast('New attempt started');refreshUI();nav('L')},'Start new attempt')}
+
+/* ---- scoring ---- */
+function scaled(raw42){return Math.round(raw42<=30?raw42/30*350:350+(raw42-30)/12*150)}   /* approx: 30/42 = 350 */
+function grade(s){return s>=450?'A':s>=350?'B':s>=300?'C+':s>=200?'C':s>=100?'D':'E'}
+function scoreRows(){
+ const rows=[];
+ ['L','R'].forEach(sk=>ORDER[sk].forEach(pk=>{const r=PROG[sk][pk];
+  const row={sec:sk,label:'Part '+pk,max:(r&&r.max)||MAXS[sk][pk],score:(r&&r.score!=null)?r.score:null,done:!!r,note:''};
+  if(!r&&sk==='R'&&pk==='C'&&isDone('R','B')&&crem()<=0){row.score=0;row.done=true;row.note='Not attempted – timer expired'}
+  rows.push(row)}));
+ const w=PROG.W.T;
+ rows.push({sec:'W',label:'Letter',max:(w&&w.max)||WMAX,score:(w&&w.score!=null)?w.score:null,done:!!w,note:''});
+ [0,1].forEach(i=>{const s=PROG.S[i];
+  rows.push({sec:'S',label:'Role-play '+(i+1),max:(s&&s.max)||SMAX,score:(s&&s.score!=null)?s.score:null,done:!!s,note:''})});
+ return rows}
+function totals(){let got=0,max=0;scoreRows().forEach(r=>{if(r.score!=null){got+=r.score;max+=r.max}});return{got,max}}
+function drawScore(){const c=$('scoreChip');if(!c)return;const t=totals();
+ c.textContent=t.max?`🏆 Score: ${fmt(t.got)} / ${t.max} · ${Math.round(t.got/t.max*100)}%`:'🏆 Score: —'}
+function runTotal(){const t=totals();
+ return t.max?`<p class="mut">Running total so far: <b>${fmt(t.got)} / ${t.max}</b> (${Math.round(t.got/t.max*100)}%) · <a href="#" onclick="openScores();return false">View score tracker</a></p>`:''}
+function scoreLine(sk){const rs=scoreRows().filter(r=>r.sec===sk&&r.score!=null);if(!rs.length)return'';
+ const g=rs.reduce((a,r)=>a+r.score,0),m=rs.reduce((a,r)=>a+r.max,0);
+ return `<p class="mut">Score so far in ${SECNAME[sk]}: <b>${fmt(g)} / ${m}</b> (${Math.round(g/m*100)}%)</p>`}
+function openScores(){
+ const rows=scoreRows();
+ let h='<table class="sbt"><tr><th>Section / part</th><th>Score</th><th>%</th><th>Status</th></tr>';
+ SECS.forEach(sk=>{
+  const rs=rows.filter(r=>r.sec===sk),sc=rs.filter(r=>r.score!=null),
+        g=sc.reduce((a,r)=>a+r.score,0),m=sc.reduce((a,r)=>a+r.max,0),full=rs.every(r=>r.score!=null);
+  let est='';
+  if((sk==='L'||sk==='R')&&full&&m){const e=scaled(g/m*42);est=`${fmt(Math.round(g/m*42*10)/10)} / 42 · ≈ ${e} / 500 · Grade ${grade(e)}`}
+  else if(sk==='S'&&full&&m){const e=scaled(g/m*42);est=`≈ ${e} / 500 · Grade ${grade(e)} (AI estimate)`}
+  else if(sk==='W'&&PROG.W.T&&PROG.W.T.est!=null)est='AI estimate '+PROG.W.T.est+' / 500'+(PROG.W.T.grade?' · '+esc(PROG.W.T.grade):'');
+  h+=`<tr><th colspan="4">${SECNAME[sk]}${secLocked(sk)?' 🔒 locked':secDone(sk)?' ✓ complete':''}<span style="float:right;font-weight:400">${est}</span></th></tr>`;
+  rs.forEach(r=>{
+   h+=`<tr class="${r.score==null?'':(r.score/r.max>=.7?'rok':'')}"><td>${esc(r.label)}</td><td>${r.score!=null?fmt(r.score)+' / '+r.max:'—'}</td><td>${r.score!=null&&r.max?Math.round(r.score/r.max*100)+'%':'—'}</td><td>${esc(r.note||(r.score!=null?'Marked':r.done?'Awaiting marking':'Not taken yet'))}</td></tr>`})});
+ const t=totals();
+ h+=`<tr><th>Total so far</th><th>${t.max?fmt(t.got)+' / '+t.max:'—'}</th><th>${t.max?Math.round(t.got/t.max*100)+'%':'—'}</th><th></th></tr></table>
+ <p class="mut">Totals count only parts that have been marked. Listening &amp; Reading: 1 mark per correct answer, no negative marking, out of 42 — about 30 (Reading 30–31) converts to 350 (Grade B). Writing: Purpose /3 + five criteria /7 = /38, assessed by AI. Speaking: per role-play, 4 linguistic criteria /6 + 5 clinical communication indicators /3 = /39, assessed by AI. 0–500 figures are approximate conversions. Official OET results are set by the OET Centre.</p>`;
+ $('sbBody').innerHTML=h;$('sb').showModal()}
+
+/* navigation */
+const TABS=[['home','Exam Onboarding'],['L','Listening'],['R','Reading'],['W','Writing'],['S','Speaking']];
+let curTab='home';
+function drawNav(v){curTab=v;if(!$('nav'))return;
+ $('nav').innerHTML=TABS.map(([k,n])=>{const lk=secLocked(k),dn=SECS.includes(k)&&secDone(k);
+  return `<button class="${k==v?'on':''}${lk?' lock':''}" onclick="nav('${k}')" title="${lk?'Locked – complete '+SECNAME[prevSec(k)]+' first':''}">${lk?'🔒 ':dn?'✓ ':''}${n}</button>`}).join('')}
+function nav(v){
+ if(EX&&!EX.submitted){toast('You must submit this part before leaving it. Parts cannot be skipped or revisited.',5000);return}
+ if(EX&&EX.marking){toast('Marking in progress – please wait a moment…');return}
+ if(secLocked(v)){toast('🔒 '+SECNAME[v]+' is locked – complete '+SECNAME[prevSec(v)]+' first.',5000);return}
+ const locked=busyW||busyS;
+ if(locked){pendingNav=v;
+  ask('Leave the test?','Your progress in the current sub-test will be lost. In the real exam software you cannot navigate away until you submit.',()=>{EX=null;busyW=busyS=false;clearInterval(tick);stopAudio();mmss();nav(pendingNav)},'Leave anyway');return}
+ EX=null;busyW=busyS=false;OB.demo=null;mmss();stopAudio();
+ $('secLabel').textContent='';
+ if($('rail'))$('rail').style.display=v==='home'?'':'none';
+ drawNav(v);
+ ({home,L:part,R:part,W:writing,S:speaking})[v](v)}
+function home(){goStep(1)}
+function ask(title,msg,yes,yn='Confirm'){cfY=yes;$('cfT').textContent=title;$('cfM').innerHTML=msg;$('cfY').textContent=yn;$('cf').showModal()}
+function cfGo(){$('cf').close();cfY&&cfY()}
+
+/* sub-test menus */
+function part(sk){const S=SPEC[sk];curMenu=sk;$('secLabel').textContent=S.name;
+ const keys=ORDER[sk];
+ const cards=keys.map((k,i)=>{const p=S.parts[k],st=partState(sk,k),prev=keys[i-1];
+  const lab=esc(p.t.split(' –')[0]);
+  let btn,badge='';
+  if(st==='done'){const r0=PROG[sk][k]||{};btn=`<button class="s" disabled>🔒 Completed – permanently locked</button>`;badge=' <span class="ok">✓ Completed'+(r0.score!=null?' · '+fmt(r0.score)+' / '+r0.max:'')+'</span>'}
+  else if(st==='seclocked')btn=`<button class="s" disabled>🔒 Locked – complete ${SECNAME[prevSec(sk)]} first</button>`;
+  else if(st==='locked')btn=`<button class="s" disabled>🔒 Locked – complete Part ${prev} first</button>`;
+  else if(st==='expired')btn=`<button class="s" disabled>🔒 Unavailable – shared timer expired</button>`;
+  else if(sk==='R'&&k==='C'){const r=crem();btn=`<button class="p" onclick="startPart('R','C')">Continue to Part C – ${Math.floor(r/60)}:${String(r%60).padStart(2,'0')} left on shared timer</button>`}
+  else btn=`<button class="p" onclick="startPart('${sk}','${k}')">Start ${lab}</button>`;
+  return `<div class="card"><h3>${esc(p.t)}${badge}</h3><p class="mut">${esc(p.d)}</p>${btn}</div>`}).join('');
+ const any=hasProg();
+ $('main').innerHTML=`<div class="card"><h2>${S.name} Sub-Test</h2><p class="mut">${sk=='L'?'Audio is controlled by the software: each extract plays once; you cannot pause, replay or change speed.':'Part A has its own 15-minute timer. Parts B and C share one 45-minute timer, as in the real test.'}</p><p class="mut">Parts must be taken in order (A → B → C). Once a part is submitted it is permanently locked for this attempt.</p>${secLocked(sk)?`<div class="msg bad">🔒 ${SECNAME[sk]} is locked until you complete the ${SECNAME[prevSec(sk)]} sub-test.</div>`:''}${scoreLine(sk)}</div>`+cards+
+ (any?`<p class="mut" style="text-align:right"><a href="#" onclick="newAttempt();return false">Start a new attempt (reset all parts)</a></p>`:'')}
+
+/* exam engine */
+/* Listening Part A: normalise gaps/answers, then validate against the transcript */
+function normLA(d){
+ const probs=[];let usable=true;
+ const items=Array.isArray(d&&d.items)?d.items:[];
+ if(items.length<2)return{ok:false,usable:false,probs:['Fewer than 2 extracts returned']};
+ items.length=2;
+ const clean=x=>String(x||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+ const GAP=/_{3,}|\[\s*\d+\s*\]|\(\s*\d+\s*\)|…+|\.{4,}/g;
+ items.forEach((it,n)=>{
+  const tag='Extract '+(n+1)+': ';
+  const dlg=(Array.isArray(it.dialogue)?it.dialogue:[]).filter(l=>l&&l.t).map(l=>({s:String(l.s||'Speaker'),t:String(l.t)}));
+  it.dialogue=dlg;
+  const tx=clean(dlg.map(l=>l.t).join(' ')),words=tx?tx.split(' ').length:0;
+  const legacy=Array.isArray(it.answers)?it.answers.map(String):[];
+  const out=[],ans=[],snips=[],vars_=[];
+  (Array.isArray(it.notes)?it.notes:[]).forEach(l=>{
+   if(typeof l==='string')l={t:l};
+   if(!l)return;
+   if(l.h&&!l.t){out.push({h:String(l.h)});return}
+   let t=String(l.t||l.text||'').replace(GAP,'____');
+   let a=l.a!=null?l.a:(l.answer!=null?l.answer:l.answers);
+   a=a==null?[]:Array.isArray(a)?a.map(String):[String(a)];
+   const g=(t.match(/____/g)||[]).length;
+   const vs=Array.isArray(l.v)?l.v.map(String):(l.v?[String(l.v)]:[]);
+   const xs=Array.isArray(l.x)?l.x.map(String):(l.x!=null?[String(l.x)]:[]);
+   for(let j=0;j<g;j++){ans.push(String(a[j]!=null?a[j]:(legacy.length?legacy.shift():'')).trim());snips.push(xs[j]||'');vars_.push(vs[j]||'')}
+   out.push({t,lv:l.lv?1:0})});
+  it.notes=out;it.answers=ans;it.snips=snips;it.vars=vars_;
+  if(!ans.length){usable=false;probs.push(tag+'no gaps in the notes')}
+  if(ans.some(x=>!x)){usable=false;probs.push(tag+'a gap has no answer')}
+  if(ans.length&&ans.length!==12)probs.push(tag+ans.length+' gaps instead of 12');
+  let pos=0;
+  ans.forEach((x,j)=>{const c=clean(x);if(!c)return;
+   if(c.split(' ').length>3)probs.push(tag+'gap '+(j+1)+' answer is longer than 3 words');
+   const i=tx.indexOf(c,pos);
+   if(i<0)probs.push(tag+'gap '+(j+1)+(tx.indexOf(c)<0?' answer is not in the recording':' is out of order'));
+   else pos=i+c.length});
+  if(words<570||words>790)probs.push(tag+'recording is '+words+' words (needs about 600-750 for 4-5 minutes)');
+ });
+ return{ok:!probs.length,usable,probs}}
+async function startPart(sk,pk,rem){
+ if(EX&&!EX.submitted)return;
+ const st=partState(sk,pk);
+ if(st!=='open'){toast(st==='done'?'This part is completed and permanently locked.':st==='expired'?'The shared Reading timer has expired.':st==='seclocked'?'🔒 Complete the '+SECNAME[prevSec(sk)]+' sub-test first.':'Complete the previous part first.');part(sk);return}
+ if(sk==='R'&&pk==='C')rem=crem();
+ if(sk==='R'&&pk==='B'&&rem==null){ask('Part B & C – combined timing','In the real OET, Reading Parts B and C share ONE 45-minute timer. Part B starts now; when you submit Part B the remaining time carries over to Part C, and you cannot return to Part B.',()=>startPart('R','B',SPEC.R.parts.B.min*60),'Start Part B');return}
+ const P=SPEC[sk].parts[pk],id=sk+pk;mmss();stopAudio();$('secLabel').textContent=P.t;
+ $('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(AI generation – a few seconds)</span></div>';
+ try{let d;
+  if(id==='LA'){let best=null,lastErr=null;
+   for(let t=1;t<=3;t++){
+    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking the notes against the recording — attempt '+t+' of 3)</span></div>';
+    let cand;try{cand=await gem(P.p)}catch(e){lastErr=e;continue}
+    const v=normLA(cand);
+    if(v.usable&&(!best||v.probs.length<best.v.probs.length))best={d:cand,v};
+    if(v.ok)break}
+   if(!best)throw lastErr||new Error('No valid Part A set was produced (no gaps appeared). Please start Part A again.');
+   if(!best.v.ok)console.warn('Part A quality notes:',best.v.probs);
+   d=best.d}
+  else d=await gem(P.p);
+  beginExam(sk,pk,d,rem)}catch(e){$('main').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
+function normPassage(it){
+ const flat=v=>Array.isArray(v)?v.map(x=>typeof x==='string'?x:(x&&((x.label?x.label+'\n':'')+(x.body||x.text||x.t||'')))||'').join('\n\n'):(v&&typeof v==='object'?Object.values(v).join('\n'):v);
+ let t=flat(it.text)||flat(it.texts)||it.body||it.passage||it.content||it.memo||it.email||it.notice||it.extract||it.article||it.excerpt||'';
+ if(!t&&Array.isArray(it.dialogue))t=it.dialogue.map(d=>(d.s?d.s+': ':'')+(d.t||'')).join('\n');
+ if(!t&&it.context)t=it.context;
+ it.text=String(t||'').trim()}
+function beginExam(sk,pk,d,rem){
+ const P=SPEC[sk].parts[pk],id=sk+pk;DATA[id]=d;
+ if(sk==='R'&&pk!=='A')(d.items||[]).forEach(normPassage);
+ d.items.forEach(it=>{if(it.notes)it.questions=(it.answers||[]).map(a=>({q:'',answer:a}))});
+ let k=1;d.items.forEach(it=>it.questions.forEach(q=>q.k=k++));
+ EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk};
+ played[id]={};lastLeftFor=-1;
+ if(EX.mode==='seq'){EX.seq=[];d.items.forEach((it,i)=>it.questions.forEach(q=>EX.seq.push({it,i,q})))}
+ renderShell();
+ timer(EX.remaining,()=>submitExam())}
+function renderShell(){
+ if(EX.mode==='seq'){
+  $('main').innerHTML=`<div class="split"><div class="pane" id="leftPane"></div><div class="pane" id="rightPane"></div></div>
+  <div class="bar"><button class="s" id="bBack" onclick="navQ(-1)">◀ Back</button>
+  <button class="s" id="bFlag" onclick="toggleFlag()">⚑ Flag for review</button>
+  <span class="mut" id="posLbl"></span><span style="flex:1"></span>
+  <button class="s" onclick="openReview()">Review ▤</button>
+  <button class="p" id="bNext" onclick="navQ(1)">Next ▶</button></div>`;
+  renderSeq();
+ } else renderAll()}
+function leftHTML(it,i){
+ if(EX.sk==='L'){const pd=played[EX.id]&&(played[EX.id][i]||played[EX.id]['b'+i]);
+  return `<div class="card"><h3>${esc(it.title||'')}</h3>${it.context?`<p class="mut">${esc(it.context)}</p>`:''}
+  <div class="player"><button class="p" id="pb" onclick="playCore('${EX.id}',${i},'pb','pf','pt')" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
+  <div class="ptrack"><div class="pfill" id="pf"></div></div><span class="mut" id="pt"></span>
+  <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" title="Volume" style="width:90px"></div>
+  <p class="mut">This recording plays once. You cannot pause, replay or adjust the speed — exactly like the real test.</p></div>`}
+ return `<div class="card"><div class="tools"><button class="s" id="hlBtn" onclick="toggleHl()">✏ Highlighter</button><button class="s" onclick="clearHl()">Clear highlights</button><span class="mut">Select text to highlight it.</span></div>
+ <div class="tx hlable txpane"><b>${esc(it.title||'')}</b>\n\n${it.text?esc(it.text):'⚠ The AI did not return a text for this question. Go back and start the part again to regenerate it.'}</div></div>`}
+function renderSeq(){
+ const {it,q,i}=EX.seq[EX.cur],k=q.k;
+ if(lastLeftFor!==i){lastLeftFor=i;hlon=false;$('leftPane').innerHTML=leftHTML(it,i)}
+ const fl=!!EX.flags[k];
+ $('rightPane').innerHTML=`<div class="card"><div class="qhead" style="display:flex;justify-content:space-between;gap:10px"><b>Question ${k} of ${EX.total}</b><span class="mut">${esc(it.title||'')}</span></div>
+  <p>${esc(q.q)}</p>
+  <div>${(q.options||[]).map(o=>`<label class="opt" data-k="${k}" data-v="${esc(o[0])}"><input type="radio" name="qk" value="${esc(o[0])}" ${EX.answers[k]===o[0]?'checked':''} onchange="record(${k},this.value)"> ${esc(o)}</label>`).join('')}</div>
+  <p class="mut">Tip: right-click an option to strike it out. Use ◀ ▶ arrow keys to navigate.</p></div>`;
+ (EX.strikes[k]||[]).forEach(v=>{const l=document.querySelector(`label.opt[data-k="${k}"][data-v="${v}"]`);if(l)l.classList.add('strike')});
+ $('posLbl').textContent=`Question ${EX.cur+1} of ${EX.seq.length}`;
+ $('bBack').disabled=EX.cur===0;
+ $('bNext').textContent=EX.cur===EX.seq.length-1?'Submit part ▶':'Next ▶';
+ $('bFlag').className='s'+(fl?' flagged':'');$('bFlag').innerHTML=fl?'⚑ Unflag question':'⚑ Flag for review'}
+function navQ(d){if(!EX||EX.submitted)return;
+ if(d>0&&EX.cur>=EX.seq.length-1){askSubmit();return}
+ EX.cur=Math.min(EX.seq.length-1,Math.max(0,EX.cur+d));renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
+function toggleFlag(){const k=EX.seq[EX.cur].q.k;EX.flags[k]?!delete EX.flags[k]:EX.flags[k]=1;renderSeq()}
+function flagAll(k){if(!EX||EX.submitted)return;EX.flags[k]?!delete EX.flags[k]:EX.flags[k]=1;
+ const b=$('gb'+k);if(b)b.classList.toggle('flg',!!EX.flags[k]);
+ const f=$('fb'+k);if(f)f.classList.toggle('on',!!EX.flags[k]);}
+function record(k,v){if(!EX)return;EX.answers[k]=v;const p=$('posLbl');if(p&&EX.mode==='all')p.textContent=countAns()+' / '+EX.total+' answered'}
+function notesHTML(id,it){let h='<div class="notes"><div class="nt">Complete the notes with UP TO THREE WORDS from the consultation for each gap. Click a number to flag it.</div>',g=0;
+ (it.notes||[]).forEach(l=>{
+  if(l.h){h+=`<div class="nh">${esc(l.h)}</div>`;return}
+  const parts=String(l.t||'').split('____');let line=esc(parts[0]);
+  for(let p=1;p<parts.length;p++){const q=it.questions[g++];if(!q){line+=esc(parts[p]);continue}const k=q.k;
+   line+=`<span class="gap"><button class="gn ${EX.flags[k]?'flg':''}" id="gb${k}" onclick="flagAll(${k})" title="Flag for review">${k}</button><input type="text" id="t${id}${k}" autocomplete="off" value="${esc(EX.answers[k]||'')}" oninput="record(${k},this.value)"></span><span class="mut" id="f${id}${k}"></span>`+esc(parts[p])}
+  h+=`<div class="nl lv${l.lv?1:0}">${line}</div>`});
+ return h+'</div>'}
+function itemBlock(it,i){
+ const id=EX.id;let h=`<div class="card"><h3>${esc(it.title||'')}</h3>${it.context?`<p class="mut">${esc(it.context)}</p>`:''}`;
+ if(it.dialogue){const pd=played[id]&&(played[id][i]||played[id]['b'+i]);
+  h+=`<div class="player"><button class="p" id="pb${id}${i}" onclick="playCore('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
+  <div class="ptrack"><div class="pfill" id="pf${id}${i}"></div></div><span class="mut" id="pt${id}${i}"></span>
+  <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" title="Volume" style="width:90px"></div>
+  <p class="mut">Plays once — no pause, replay or speed change.</p><div class="tx" id="tr${id}${i}" style="display:none"></div>`}
+ if(it.text)h+=`<div class="tx hlable" style="max-height:520px;overflow-y:auto">${esc(it.text)}</div>`;
+ (it.texts||[]).forEach(t=>h+=`<div class="tx hlable" style="max-height:420px;overflow-y:auto"><b>${esc(t.label)}</b>\n${esc(t.body)}</div>`);
+ if(id==='LA')h+=notesHTML(id,it);
+ else h+='<div>'+it.questions.map(q=>{const k=q.k;
+  return `<div class="q" id="qk${k}"><button class="flagbtn ${EX.flags[k]?'on':''}" id="fb${k}" onclick="flagAll(${k})" title="Flag for review">⚑</button><span class="n">${k}</span>${esc(q.q)}<div>${q.options?q.options.map(o=>`<label class="opt" data-k="${k}" data-v="${esc(o[0])}"><input type="radio" name="q${k}" value="${esc(o[0])}" ${EX.answers[k]===o[0]?'checked':''} onchange="record(${k},this.value)"> ${esc(o)}</label>`).join(''):`<input type="text" id="t${id}${k}" autocomplete="off" value="${esc(EX.answers[k]||'')}" oninput="record(${k},this.value)" style="margin-top:4px">`}</div><div class="mut" id="f${id}${k}"></div></div>`}).join('')+'</div>';
+ return h+'</div>'}
+function renderAll(){
+ $('main').innerHTML=`<div class="card"><h2>${esc(EX.P.t)}</h2><p class="mut">${esc(EX.P.d)}</p><p class="mut">Answers save automatically. Use ⚑ to flag, Review ▤ to jump between questions. The part submits automatically at 00:00.</p>
+ ${EX.id==='RA'?'<div class="tools"><button class="s" id="hlBtn" onclick="toggleHl()">✏ Highlighter</button><button class="s" onclick="clearHl()">Clear highlights</button><span class="mut">Select text in the passages to highlight.</span></div>':''}</div>`+
+ EX.items.map((it,i)=>itemBlock(it,i)).join('')+
+ `<div class="bar"><span class="mut" id="posLbl">${countAns()} / ${EX.total} answered</span><span style="flex:1"></span>
+ <button class="s" onclick="openReview()">Review ▤</button><button class="p" onclick="askSubmit()">Submit part</button></div>`}
+
+/* review & submission */
+function countAns(){return Object.values(EX.answers).filter(v=>v&&String(v).trim()!=='').length}
+function countFl(){return Object.keys(EX.flags).length}
+function openReview(){
+ const cells=EX.mode==='seq'?EX.seq.map((s,n)=>({k:s.q.k,n:n+1})):EX.items.flatMap(it=>it.questions.map(q=>({k:q.k,n:q.k})));
+ $('revGrid').innerHTML=cells.map(({k,n})=>{const ans=EX.answers[k]&&String(EX.answers[k]).trim()!=='',fl=EX.flags[k];
+  return `<button class="pv ${ans?'ans':''} ${fl?'fl':''}" onclick="jumpTo(${k},${n})">${n}</button>`}).join('');
+ $('revSum').textContent=`${countAns()} of ${EX.total} answered · ${countFl()} flagged`;
+ $('rev').showModal()}
+function jumpTo(k,n){$('rev').close();
+ if(EX.mode==='seq'){EX.cur=n-1;renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
+ else{const el=$('qk'+k)||$('gb'+k)||$('t'+EX.id+k);el&&el.scrollIntoView({behavior:'smooth',block:'center'})}}
+function askSubmit(){ask('Submit this part?',`You have answered <b>${countAns()} of ${EX.total}</b> questions and flagged <b>${countFl()}</b> for review.<br><br><span class="bad">This part will be permanently locked and cannot be reopened.</span>`,()=>submitExam(),'Submit now')}
+function submitExam(){
+ if(!EX||EX.submitted)return;EX.submitted=true;
+ lockPart(EX.sk,EX.pk,EX.combined?{rem:Math.max(0,EX.remaining),t:Date.now()}:null);
+ document.querySelectorAll('dialog[open]').forEach(d=>d.close());
+ clearInterval(tick);stopAudio();
+ const sk=EX.sk;
+ $('main').innerHTML=`<div class="card center"><h2>✓ ${esc(EX.P.t)} submitted</h2><p class="mut">Your answers have been saved. Marking in progress…</p></div>`;
+ (sk==='L'&&EX.pk==='A')?markLA():markAll()}
+
+/* audio engine */
+function masterGain(){MG=MG||ac.createGain();MG.gain.value=VOL();MG.connect(ac.destination);return MG}
+function stopAudio(){try{cur&&cur.stop()}catch(e){}cur=null;cancelAnimationFrame(progRAF);speechSynthesis.cancel()}
+const TTS_MODELS=['gemini-3.1-flash-tts-preview','gemini-2.5-flash-preview-tts'];
+async function ttsFetch(text,two,v1='Kore',v2='Charon'){
+ const vc=n=>({prebuiltVoiceConfig:{voiceName:n}});
+ const speech=two?{multiSpeakerVoiceConfig:{speakerVoiceConfigs:[{speaker:'Speaker1',voiceConfig:vc(v1)},{speaker:'Speaker2',voiceConfig:vc(v2)}]}}:{voiceConfig:vc(v1)};
+ let err;for(const m of TTS_MODELS){try{
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:speech}})});
+  const d=await r.json();if(d.error)throw new Error(d.error.message);
+  const p=d.candidates[0].content.parts[0].inlineData;return{data:p.data,rate:+((p.mimeType||'').match(/rate=(\d+)/)||[0,24000])[1]}}catch(e){err=e}}throw err}
+function playPCM({data,rate},words){const bin=atob(data),n=bin.length>>1,buf=ac.createBuffer(1,n,rate),ch=buf.getChannelData(0);
+ for(let k=0;k<n;k++){let v=bin.charCodeAt(2*k)|(bin.charCodeAt(2*k+1)<<8);if(v>32767)v-=65536;ch[k]=v/32768}
+ const s=ac.createBufferSource();s.buffer=buf;s.connect(masterGain());cur=s;
+ let pr=1;const wpm=words?words/(n/rate/60):0;
+ if(wpm&&(wpm<135||wpm>165))pr=Math.max(.88,Math.min(1.2,150/wpm)); /* steer delivery to about 150 words per minute, like a real exam recording */
+ s.playbackRate.value=pr;s.start();
+ return{done:new Promise(r=>s.onended=r),dur:n/rate/pr,wpm:Math.round(wpm*pr)}}
+function startProg(pfId,ptId,dur){const t0=performance.now();cancelAnimationFrame(progRAF);
+ const step=t=>{const f=$(pfId),tm=$(ptId);if(!f)return;const pc=Math.min(1,(t-t0)/(dur*1000));f.style.width=(pc*100)+'%';
+  if(tm)tm.textContent=Math.floor(pc*dur/60)+':'+String(Math.floor(pc*dur%60)).padStart(2,'0')+' / '+Math.floor(dur/60)+':'+String(Math.floor(dur%60)).padStart(2,'0');
+  if(pc<1)progRAF=requestAnimationFrame(step)};progRAF=requestAnimationFrame(step)}
+function bestVoice(){const v=speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang));const rank=x=>(/natural|online|neural/i.test(x.name)?4:0)+(/google|premium|enhanced/i.test(x.name)?2:0)+(/GB/.test(x.lang)?1:0);return v.sort((a,b)=>rank(b)-rank(a))[0]}
+function browserSay(text,i=0){const u=new SpeechSynthesisUtterance(text),v=bestVoice();if(v)u.voice=v;u.pitch=i?1.15:0.9;u.rate=1;u.volume=VOL();speechSynthesis.speak(u);return new Promise(r=>u.onend=r)}
+async function say(text){try{ac=ac||new AudioContext();ac.resume();await playPCM(await ttsFetch(text,false,'Puck')).done}catch(e){browserSay(text)}}
+async function playCore(id,i,bid,pfid,ptid){
+ if(played[id]&&(played[id][i]||played[id]['b'+i]))return;
+ played[id]['b'+i]=1;ac=ac||new AudioContext();ac.resume();stopAudio();
+ const b=$(bid),L=DATA[id].items[i].dialogue,names=[...new Set(L.map(l=>l.s))],two=names.length>1;
+ const style='Read this aloud as a realistic recording for an English listening exam: natural British accent, at a natural conversational speaking pace of about 150 words per minute (not slow, not rushed), with human intonation, brief natural pauses between turns and no long silences'+(two?', as a real conversation between two people.':'.')+'\n\n';
+ const txt=style+(two?L.map(l=>'Speaker'+(names.indexOf(l.s)?2:1)+': '+l.t):L.map(l=>l.t)).join('\n');
+ b.disabled=true;b.textContent='Loading audio…';
+ try{const a=await ttsFetch(txt,two);played[id][i]=1;b.textContent='❚❚ Audio playing (once only)';
+  const wc=L.reduce((n,l)=>n+String(l.t||'').split(/\s+/).filter(Boolean).length,0);
+  const {done,dur}=playPCM(a,wc);if(pfid)startProg(pfid,ptid,dur);await done}
+ catch(e){played[id][i]=1;b.textContent='Audio playing (browser voice fallback)';const sp={};for(const l of L){if(!(l.s in sp))sp[l.s]=Object.keys(sp).length;await browserSay(l.t,sp[l.s]%2)}}
+ b.textContent='✔ Audio played';b.disabled=true;const f=$(pfid);if(f)f.style.width='100%'}
+
+/* marking */
+function markAll(){
+ let ok=0,rows='';
+ EX.items.forEach((it,i)=>{
+  rows+=`<tr><th colspan="4">${esc(it.title||('Item '+(i+1)))}</th></tr>`;
+  it.questions.forEach(q=>{const k=q.k,a=String(EX.answers[k]||'').trim();
+   const corr=q.options?(q.options.find(o=>o[0]===String(q.answer).trim()[0])||q.answer):q.answer;
+   const good=q.options?a.toUpperCase()===String(q.answer).trim().toUpperCase():(a.toLowerCase()===String(q.answer).toLowerCase()||(a&&String(q.answer).toLowerCase().includes(a.toLowerCase())&&a.length>1));
+   if(good)ok++;
+   rows+=`<tr class="${good?'rok':'rbad'}"><td>${k}</td><td>${a?esc(a):'<span class="mut">no answer</span>'}</td><td>${esc(corr)}</td><td>${good?'<span class="ok">✓</span>':'<span class="bad">✗</span>'}</td></tr>`+(q.exp?`<tr><td></td><td colspan="3" class="mut"><b>Explanation:</b> ${esc(q.exp)}</td></tr>`:'')})});
+ setScore(EX.sk,EX.pk,ok,EX.total);let extra='';
+ if(EX.sk==='L')extra=EX.items.map(it=>it.dialogue?`<details><summary>Audio script – ${esc(it.title||'')}</summary><div class="tx">${it.dialogue.map(l=>esc(l.s)+': '+esc(l.t)).join('\n')}</div></details>`:'').join('');
+ let gate='';
+ if(EX.combined&&EX.pk==='B')gate=(EX.remaining>0)?`<button class="p" onclick="continueC()">Continue to Part C – timer keeps running (${Math.floor(EX.remaining/60)}:${String(EX.remaining%60).padStart(2,'0')} left)</button><br><br>`:'<p class="bad">Time is up – Part C could not be started.</p>';
+ $('main').innerHTML=`<div class="card"><h2>Performance report – ${esc(EX.P.t)}</h2><p class="big">Score: <b>${ok} / ${EX.total}</b> <span class="mut">(${Math.round(ok/(EX.total||1)*100)}%)</span></p>${runTotal()}${gate}
+ <table class="rep"><tr><th>#</th><th>Your answer</th><th>Correct answer</th><th></th></tr>${rows}</table>${extra}<br><button class="p" onclick="nav('${EX.sk}')">Back to ${EX.sk==='L'?'Listening':'Reading'} menu</button></div>`}
+function continueC(){EX=null;startPart('R','C',crem())}
+async function markLA(){
+ const payload=EX.items.map((it,i)=>({consultation:i+1,title:it.title,items:it.questions.map(q=>({gap:q.k,user_answer:EX.answers[q.k]||'',correct_answer:q.answer}))}));
+ EX.marking=true;
+ $('main').innerHTML='<div class="card center"><h2>Marking…</h2><p class="mut">AI assessor is reviewing your case notes (accepts minor spelling errors and close clinical synonyms).</p></div>';
+ try{
+  const a=await gem(`You are an official OET Listening Part A assessor. Evaluate the candidate's filled case notes against the correct answers. Be flexible like a human assessor: accept minor spelling mistakes, valid medical abbreviations, or close clinical synonyms if the medical/informational intent is fully correct. Data: ${JSON.stringify(payload)} Return JSON format: {"total_score": 0, "max_score": 24, "feedback": [{"gap": 1, "correct": true, "comment": ""}]}`);
+  const qmap={};EX.items.forEach(it=>it.questions.forEach(q=>qmap[q.k]=q));
+  const fb=a.feedback||[],got=fb.length?fb.filter(f=>f.correct===true||f.correct==='true').length:clamp(a.total_score,EX.total);
+  setScore('L','A',got,EX.total);
+  const rows=(a.feedback||[]).map(f=>{const q=qmap[f.gap]||{};
+   return `<tr class="${f.correct?'rok':'rbad'}"><td>${f.gap}</td><td>${esc(EX.answers[f.gap]||'—')}</td><td>${esc(q.answer||'')}</td><td>${f.correct?'<span class="ok">✓</span>':'<span class="bad">✗</span>'}</td><td>${esc(f.comment||'')}</td></tr>`}).join('');
+  const extra=EX.items.map(it=>`<details><summary>Audio script – ${esc(it.title||'')}</summary><div class="tx">${it.dialogue.map(l=>esc(l.s)+': '+esc(l.t)).join('\n')}</div></details><details><summary>Answer key &amp; explanations – ${esc(it.title||'')}</summary><table class="rep"><tr><th>#</th><th>Answer</th><th>Acceptable variations</th><th>Where it is heard</th></tr>${(it.answers||[]).map((x,j)=>`<tr><td>${j+1}</td><td>${esc(x)}</td><td>${esc((it.vars||[])[j]||'—')}</td><td>${esc((it.snips||[])[j]||'—')}</td></tr>`).join('')}</table></details>`).join('');
+  $('main').innerHTML=`<div class="card"><h2>Performance report – ${esc(EX.P.t)}</h2><p class="big">Score: <b>${got} / ${EX.total}</b> <span class="mut">(${Math.round(got/(EX.total||1)*100)}%)</span></p>${runTotal()}
+  <table class="rep"><tr><th>#</th><th>Your answer</th><th>Correct</th><th></th><th>Assessor comment</th></tr>${rows}</table>${extra}<br><button class="p" onclick="nav('L')">Back to Listening menu</button></div>`;
+ }catch(e){toast('AI marking unavailable – scored by exact match instead.',6000);EX.marking=false;markAll();return}
+ finally{if(EX)EX.marking=false}}
+
+/* highlighter & strikeout (engine) */
+function toggleHl(){hlon=!hlon;const b=$('hlBtn');if(b)b.classList.toggle('on',hlon);toast(hlon?'Highlighter ON – select text in the passage':'Highlighter OFF',2000)}
+function clearHl(){document.querySelectorAll('#main mark.hl').forEach(m=>m.replaceWith(...m.childNodes))}
+document.addEventListener('mouseup',()=>{if(!hlon)return;
+ const sel=getSelection();if(!sel.rangeCount||sel.isCollapsed)return;
+ let node=sel.getRangeAt(0).commonAncestorContainer;if(node.nodeType===3)node=node.parentNode;
+ if(!node.closest||!node.closest('.hlable'))return;
+ const r=sel.getRangeAt(0),m=document.createElement('mark');m.className='hl';
+ try{r.surroundContents(m)}catch(e){try{m.appendChild(r.extractContents());r.insertNode(m)}catch(_){}}
+ sel.removeAllRanges()});
+document.addEventListener('contextmenu',e=>{const lab=e.target.closest('label.opt');
+ if(!lab||!EX||EX.submitted)return;e.preventDefault();
+ const k=lab.dataset.k,v=lab.dataset.v;EX.strikes[k]=EX.strikes[k]||new Set();
+ if(EX.strikes[k].has(v)){EX.strikes[k].delete(v);lab.classList.remove('strike')}
+ else{EX.strikes[k].add(v);lab.classList.add('strike')}});
+document.addEventListener('keydown',e=>{if(!EX||EX.submitted||EX.mode!=='seq')return;
+ const t=document.activeElement;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
+ if(document.querySelector('dialog[open]'))return;
+ if(e.key==='ArrowRight')navQ(1);else if(e.key==='ArrowLeft')navQ(-1)});
+
+/* writing */
+function writing(){const w0=PROG.W.T;
+ if(w0){$('main').innerHTML=`<div class="card"><h2>Writing Sub-Test <span class="ok">✓ Completed</span></h2><p class="mut">This sub-test has been submitted and is permanently locked for this attempt.</p>${w0.score!=null?`<p class="big">Letter score: <b>${fmt(w0.score)} / ${w0.max}</b>${w0.est!=null?` · AI estimate ${esc(w0.est)} / 500 ${esc(w0.grade||'')}`:''}</p>`:'<p class="mut">Awaiting marking.</p>'}${runTotal()}<p class="mut" style="text-align:right"><a href="#" onclick="newAttempt();return false">Start a new attempt (reset all parts)</a></p></div>`;return}
+ $('main').innerHTML=`<div class="card"><h2>Writing Sub-Test</h2><p class="mut">45 minutes: 5 minutes reading time (you cannot write), then 40 minutes writing. The timer submits automatically at 00:00.</p><button class="p" onclick="newW()">Start Writing Test</button></div><div id="w"></div>`}
+function openWriting(){const t=$('ltr');if(!t||!t.disabled||t.dataset.open)return;t.dataset.open='1';
+ t.disabled=false;$('ev').disabled=false;t.placeholder='Dear …,';t.focus();
+ const b=$('wBanner');if(b){b.className='msg okm';b.textContent='✓ Writing time — type your letter in the box below.'}
+ timer(2400,()=>{t.disabled=true;evalW()},'Writing')}
+async function newW(){busyW=true;mmss();$('w').innerHTML='<div class="card">Preparing case notes…</div>';
+ try{const d=await gem('Create an OET Pharmacy Writing task. Return JSON {"setting":"","recipient":"","notes":""}. "setting" = one-line pharmacist workplace (e.g. hospital outpatient pharmacy). "recipient" = who the letter goes to (e.g. patient\'s GP, community pharmacist, specialist nurse). "notes" = realistic case notes in OET style (plain text, note form, with headings: Patient, Reason for letter, Medical history, Medications, Social history, Pharmacist assessment and actions, Plan/follow-up), including a few irrelevant details the writer should omit.');
+ DATA.W=d;$('w').innerHTML=`<div class="two"><div class="card"><h3>Case notes</h3><p class="mut">Setting: ${esc(d.setting)}</p><div class="tx" style="max-height:500px">${esc(d.notes)}</div></div>
+ <div class="card"><h3>Task</h3><p>Using the information in the case notes, write a letter to <b>${esc(d.recipient)}</b>.</p><p>In your answer:<br>• Expand the relevant notes into complete sentences<br>• Do not use note form<br>• Use letter format</p><p>The body of the letter should be approximately <b>180–200 words</b>.</p>
+ <div class="msg run" id="wBanner">● Reading time — the writing box is locked for the first 5:00 and opens automatically. <button class="s" type="button" onclick="openWriting()">Skip reading time &amp; start writing</button></div>
+ <textarea id="ltr" disabled oninput="$('wc').textContent='Words: '+(this.value.trim()?this.value.trim().split(/\s+/).length:0)" placeholder="Reading time – writing opens after 5:00"></textarea><div class="mut" id="wc">Words: 0</div><br><button class="p" id="ev" onclick="askW()" disabled>Submit for marking</button></div></div><div id="wf"></div>`;
+ timer(300,openWriting,'Reading time')}catch(e){busyW=false;$('w').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
+function askW(){ask('Submit your letter?','Your letter will be marked and you will not be able to edit it afterwards.',()=>evalW(),'Submit letter')}
+async function evalW(){mmss();if(!isDone('W','T'))lockPart('W','T');$('wf').innerHTML='<div class="card">Marking…</div>';const l=$('ltr').value;$('ltr').disabled=true;
+ try{const e=await gem(`You are an OET Writing assessor. Mark this Pharmacy letter on the official OET criteria: Purpose (0-3), Content (0-7), Conciseness & Clarity (0-7), Genre & Style (0-7), Organisation & Layout (0-7), Language (0-7). Use whole numbers only (no half marks) and never exceed a maximum.\nCase notes:\n${DATA.W.notes}\nRecipient: ${DATA.W.recipient}\nLetter:\n${l}\nReturn JSON {"purpose":0,"content":0,"clarity":0,"genre":0,"organisation":0,"language":0,"strengths":[""],"improvements":[""],"missing_or_irrelevant":""}`);
+ busyW=false;
+ const ws=clamp(e.purpose,3)+clamp(e.content,7)+clamp(e.clarity,7)+clamp(e.genre,7)+clamp(e.organisation,7)+clamp(e.language,7);
+ const west=scaled(ws/WMAX*42),wgr=grade(west);
+ setScore('W','T',ws,WMAX,{est:west,grade:'Grade '+wgr});
+ $('wf').innerHTML=`<div class="card"><h2>Estimated: Grade ${wgr} (≈ ${west} / 500)</h2><p class="big">Letter score: <b>${fmt(ws)} / ${WMAX}</b> <span class="mut">(Purpose 3 + five criteria × 7)</span></p>${runTotal()}<table><tr><th>Purpose /3</th><th>Content /7</th><th>Conciseness &amp; Clarity /7</th><th>Genre &amp; Style /7</th><th>Organisation &amp; Layout /7</th><th>Language /7</th></tr><tr><td>${e.purpose}</td><td>${e.content}</td><td>${e.clarity}</td><td>${e.genre}</td><td>${e.organisation}</td><td>${e.language}</td></tr></table>
+ <p><b>Strengths</b></p><ul>${(e.strengths||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p><b>To improve</b></p><ul>${(e.improvements||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p><b>Content selection:</b> ${esc(e.missing_or_irrelevant)}</p><br><button class="p" onclick="nav('W')">Back to Writing menu</button></div>`}catch(x){busyW=false;$('wf').innerHTML=`<div class="card bad">${esc(x.message)}<br><br><button class="p" onclick="evalW()">Retry marking</button></div>`}}
+
+/* speaking */
+function speaking(){
+ if(isDone('S',0)&&isDone('S',1)){const a0=PROG.S[0],a1=PROG.S[1];
+  $('main').innerHTML=`<div class="card"><h2>Speaking Sub-Test <span class="ok">✓ Completed</span></h2><p class="mut">Both role-plays have been completed and are permanently locked for this attempt.</p><table><tr><th>Role-play</th><th>Score</th></tr><tr><td>Role-play 1</td><td>${fmt(a0.score||0)} / ${a0.max||SMAX}</td></tr><tr><td>Role-play 2</td><td>${fmt(a1.score||0)} / ${a1.max||SMAX}</td></tr></table>${runTotal()}<p class="mut" style="text-align:right"><a href="#" onclick="newAttempt();return false">Start a new attempt (reset all parts)</a></p></div>`;return}
+ $('main').innerHTML=`<div class="card"><h2>Speaking Sub-Test</h2><p class="mut">Two role-plays. For each: 3 minutes preparation, then about 5 minutes with the patient. You are the pharmacist. Speak (🎤) or type.</p><button class="p" onclick="newS()">${isDone('S',0)?'Continue – Role-play 2':'Start Speaking Test'}</button></div>
+ <div class="card"><h3>🎤 Microphone check</h3><p class="mut">The role-plays use your microphone for speech-to-text and to record your voice (kept on this device only). Test it before you start.</p><div class="msg wait" id="micMsg">● Looking for a microphone…</div><div class="ptrack" style="margin:8px 0"><div class="pfill" id="micLvl" style="width:0"></div></div><button class="s" onclick="testMic()">🎤 Test microphone</button></div><div id="sp"></div>`;micInit()}
+async function newS(){busyS=true;mmss();$('sp').innerHTML='<div class="card">Preparing role-play cards…</div>';
+ try{const d=await gem('Create 2 different OET Pharmacy Speaking role-play cards for the candidate, who plays the pharmacist. Return JSON {"cards":[{"setting":"","patient":"","background":"","tasks":["","","",""]}]}. Settings: community pharmacy or hospital. Tasks are 4 bullet instructions in the OET style (e.g. "Find out about...", "Explain how...", "Reassure...").');cards=d.cards.slice(0,2);rp(isDone('S',0)?1:0)}catch(e){busyS=false;$('sp').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
+function rp(i){RP=i;chat=[];busyS=true;$('sp').innerHTML=`<div class="card"><h2>Role-play ${i+1} of 2 – Candidate card</h2><p><b>Setting:</b> ${esc(cards[i].setting)}</p><p><b>Patient:</b> ${esc(cards[i].patient)}</p><p><b>Background:</b> ${esc(cards[i].background)}</p><p><b>Task:</b></p><ul>${cards[i].tasks.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+ <div class="card"><div id="recInd" class="mut" style="margin-bottom:6px"></div><div id="ch" style="min-height:150px;max-height:320px;overflow:auto"><span class="mut">Preparation time – the role-play opens after 3:00.</span></div><div style="display:flex;gap:6px;margin-top:8px"><input type="text" id="ci" style="flex:1;width:auto" disabled onkeydown="if(event.key==='Enter')send()"><button class="s" id="mc" onclick="mic()" disabled>🎤</button><button class="p" id="sd" onclick="send()" disabled>Send</button></div><br><button class="s" onclick="askEndS()">End role-play &amp; get feedback</button></div><div id="sf"></div>`;
+ stopMicTest();micDetect().then(r=>{const ri=$('recInd');if(ri&&!MIC.rec)ri.textContent=r.state==='found'?'🎤 Microphone detected — your voice is recorded once the role-play opens.':'⚠ No microphone detected — you can still type your answers.'});
+ timer(180,()=>{['ci','mc','sd'].forEach(x=>$(x).disabled=false);startRec();$('ch').innerHTML='<span class="mut">The patient is waiting. Start the role-play.</span>';$('ci').focus();timer(300,endS,'Role-play')},'Preparation')}
+async function send(){const t=$('ci').value.trim();if(!t)return;$('ci').value='';$('ch').innerHTML+=`<div class="msg me"><b>You:</b> ${esc(t)}</div>`;chat.push({role:'user',parts:[{text:t}]});
+ try{const c=cards[RP],r=await gem(chat,false,`You are the patient in an OET Pharmacy speaking role-play. Patient: ${c.patient}. Background: ${c.background}. The candidate is the pharmacist, tasks: ${c.tasks.join('; ')}. Stay in character, reply in 1-3 spoken sentences, only reveal information when asked, show realistic worry, never coach the candidate.`);
+ chat.push({role:'model',parts:[{text:r}]});$('ch').innerHTML+=`<div class="msg pt" style="background:#f1f1f1"><b>Patient:</b> ${esc(r)}</div>`;$('ch').scrollTop=1e5;say(r)}catch(e){$('ch').innerHTML+=`<div class="card bad">${esc(e.message)}</div>`}}
+/* ---------- microphone detection, test & recording ---------- */
+const MIC={ok:false,test:null,ctx:null,raf:0,rec:null,recStream:null,chunks:[],sr:null};
+async function micDetect(){
+ if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return{state:'unsupported'};
+ try{const m=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==='audioinput');
+  return m.length?{state:'found',n:m.length,label:m[0].label}:{state:'none'}}catch(e){return{state:'unsupported'}}}
+function setMicMsg(r){const el=$('micMsg');if(!el)return;
+ if(r.state==='unsupported'){el.className='msg bad';el.textContent='✗ This browser cannot access a microphone (use Chrome, Edge or Safari, opened over https or localhost). You can still type your answers.'}
+ else if(r.state==='none'){el.className='msg bad';el.textContent='✗ No microphone detected. Plug in a microphone or headset, then click Test microphone. You can still type your answers.'}
+ else{el.className='msg wait';el.textContent='● Microphone detected ('+r.n+' input'+(r.n>1?'s':'')+'). Click Test microphone to check it works.'}}
+async function micInit(){setMicMsg(await micDetect());
+ if(!micInit.bound&&navigator.mediaDevices&&navigator.mediaDevices.addEventListener){micInit.bound=1;
+  navigator.mediaDevices.addEventListener('devicechange',()=>{if($('micMsg')&&!MIC.test)micDetect().then(setMicMsg)})}}
+function stopMicTest(){cancelAnimationFrame(MIC.raf);if(MIC.test){MIC.test.getTracks().forEach(t=>t.stop());MIC.test=null}
+ if(MIC.ctx){try{MIC.ctx.close()}catch(e){}MIC.ctx=null}}
+async function testMic(){const msg=$('micMsg'),bar=$('micLvl');stopMicTest();
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setMicMsg({state:'unsupported'});return}
+ msg.className='msg run';msg.textContent='● Requesting microphone access — click Allow in your browser…';
+ let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){MIC.ok=false;msg.className='msg bad';
+  msg.textContent=(e.name==='NotAllowedError'||e.name==='SecurityError')?'✗ Microphone access is blocked. Click the lock icon in the address bar, allow the microphone, then test again.'
+   :(e.name==='NotFoundError'||e.name==='OverconstrainedError')?'✗ No microphone found. Plug one in and test again.'
+   :e.name==='NotReadableError'?'✗ The microphone is in use by another app. Close that app and test again.'
+   :'✗ Could not start the microphone: '+e.message;return}
+ MIC.test=st;const tr=st.getAudioTracks()[0],label=(tr&&tr.label)||'default microphone';
+ const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();MIC.ctx=ctx;
+ const an=ctx.createAnalyser();an.fftSize=512;ctx.createMediaStreamSource(st).connect(an);
+ const buf=new Uint8Array(an.fftSize);let peak=0;const t0=performance.now();
+ msg.className='msg run';msg.textContent='● Microphone detected: '+label+' — say a few words…';
+ const finish=()=>{stopMicTest();bar.style.width='0';
+  if(peak>0.04){MIC.ok=true;msg.className='msg okm';msg.textContent='✓ Microphone working: '+label}
+  else{MIC.ok=false;msg.className='msg bad';msg.textContent='⚠ Microphone found ('+label+') but no sound was heard. Check it is not muted, speak closer, then test again.'}};
+ const loop=()=>{if(!MIC.test)return;an.getByteTimeDomainData(buf);let m=0;for(const v of buf)m=Math.max(m,Math.abs(v-128)/128);
+  peak=Math.max(peak,m);bar.style.width=Math.min(100,m*300)+'%';
+  if(performance.now()-t0>8000){finish();return}MIC.raf=requestAnimationFrame(loop)};
+ loop()}
+async function startRec(){if(MIC.rec||!window.MediaRecorder||!navigator.mediaDevices)return;
+ const ri=$('recInd');
+ try{const st=await navigator.mediaDevices.getUserMedia({audio:true});MIC.recStream=st;MIC.chunks=[];
+  const r=new MediaRecorder(st);r.ondataavailable=e=>{if(e.data&&e.data.size)MIC.chunks.push(e.data)};r.start();MIC.rec=r;
+  if(ri)ri.innerHTML='<span style="color:#c00">●</span> Recording your voice on this device only…'}
+ catch(e){if(ri)ri.textContent='⚠ Could not record audio ('+(e.name==='NotAllowedError'?'microphone blocked':e.name==='NotFoundError'?'no microphone found':e.message)+'). You can still type your answers.'}}
+function stopRec(){return new Promise(res=>{const r=MIC.rec;
+ const fin=()=>{if(MIC.recStream)MIC.recStream.getTracks().forEach(t=>t.stop());MIC.recStream=null;MIC.rec=null;
+  const url=MIC.chunks.length?URL.createObjectURL(new Blob(MIC.chunks,{type:(r&&r.mimeType)||'audio/webm'})):'';MIC.chunks=[];res(url)};
+ if(!r||r.state==='inactive'){fin();return}r.onstop=fin;try{r.stop()}catch(e){fin()}})}
+function mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!R)return alert('Speech-to-text is not supported in this browser (try Chrome or Edge). Type instead.');
+ if(MIC.sr){MIC.sr.stop();return}
+ const r=new R(),b=$('mc');r.lang='en-GB';r.interimResults=true;MIC.sr=r;b.textContent='⏹';b.title='Stop';let fin='';
+ r.onresult=e=>{let t='';for(const x of e.results)t+=x[0].transcript;$('ci').value=t;fin=t};
+ r.onerror=e=>{const m={'not-allowed':'Microphone access is blocked — allow it in the address bar.','service-not-allowed':'Speech recognition is blocked in this browser.','audio-capture':'No microphone detected.','no-speech':'No speech heard — try again.'}[e.error];if(m)toast(m)};
+ r.onend=()=>{MIC.sr=null;b.textContent='🎤';b.title='';if(fin.trim())send()};
+ try{r.start()}catch(e){MIC.sr=null;b.textContent='🎤'}}
+function askEndS(){ask('End this role-play?','Your conversation will be assessed and scored, and this role-play will be locked.',()=>endS(),'End & assess')}
+async function endS(){mmss();stopAudio();if(MIC.sr){MIC.sr.onend=null;try{MIC.sr.abort()}catch(e){}MIC.sr=null;const mb=$('mc');if(mb)mb.textContent='🎤'}const recUrl=await stopRec();['ci','mc','sd'].forEach(x=>$(x).disabled=true);if(chat.length<2){busyS=false;lockPart('S',RP,{score:0,max:SMAX});$('sf').innerHTML=`<div class="card bad">No conversation to assess – recorded as 0 / ${SMAX}.<br><br>${RP==0?'<button class="p" onclick="rp(1)">Start Role-play 2</button>':'<button class="p" onclick="nav(\'S\')">Back to Speaking menu</button>'}</div>`;return}
+ $('sf').innerHTML='<div class="card">Assessing…</div>';const tr=chat.map(m=>(m.role=='user'?'Pharmacist: ':'Patient: ')+m.parts[0].text).join('\n');
+ try{const e=await gem(`You are an OET Speaking assessor. Role-play card tasks: ${cards[RP].tasks.join('; ')}.\nTranscript (typed or speech-to-text, so judge language from wording only):\n${tr}\nMark on OET criteria. Linguistic criteria, each scored 0-6 as whole numbers: intelligibility (pronunciation, stress, intonation), fluency (smooth flow, no long pauses), appropriateness of language (tone, register, word choice), resources of grammar and expression. Clinical communication indicators, each scored 0-3 as whole numbers: relationship building, understanding and incorporating the patient's perspective, providing structure, information gathering, information giving. Return JSON {"intelligibility":0,"fluency":0,"appropriateness":0,"grammar":0,"relationship":0,"perspective":0,"structure":0,"gathering":0,"giving":0,"strengths":[""],"improvements":[""],"model_phrases":[""]}`);
+ busyS=false;
+ const ling=clamp(e.intelligibility,6)+clamp(e.fluency,6)+clamp(e.appropriateness,6)+clamp(e.grammar,6),clin=clamp(e.relationship,3)+clamp(e.perspective,3)+clamp(e.structure,3)+clamp(e.gathering,3)+clamp(e.giving,3),ss=ling+clin;
+ lockPart('S',RP,{score:ss,max:SMAX,ling,clin});
+ $('sf').innerHTML=`<div class="card"><h2>Role-play ${RP+1} feedback – ${fmt(ss)} / ${SMAX}</h2><p class="big">Linguistic: <b>${ling} / ${LMAX}</b> · Clinical communication: <b>${clin} / ${CMAX}</b></p>${recUrl?`<p><b>Your recording</b> <span class="mut">(stored on this device only; lost when you close the page)</span></p><audio controls src="${recUrl}" style="width:100%"></audio>`:''}${runTotal()}<table><tr><th colspan="4">Linguistic criteria (each /6)</th><th colspan="5">Clinical communication indicators (each /3)</th></tr><tr><th>Intelligibility</th><th>Fluency</th><th>Appropriateness</th><th>Grammar &amp; expression</th><th>Relationship building</th><th>Patient perspective</th><th>Structure</th><th>Information gathering</th><th>Information giving</th></tr><tr><td>${e.intelligibility}</td><td>${e.fluency}</td><td>${e.appropriateness}</td><td>${e.grammar}</td><td>${e.relationship}</td><td>${e.perspective}</td><td>${e.structure}</td><td>${e.gathering}</td><td>${e.giving}</td></tr></table>
+ <p><b>Strengths</b></p><ul>${(e.strengths||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p><b>To improve</b></p><ul>${(e.improvements||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p><b>Useful phrases</b></p><ul>${(e.model_phrases||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${RP==0?'<button class="p" onclick="rp(1)">Start Role-play 2</button>':'<br><button class="p" onclick="nav(\'S\')">Back to Speaking menu</button>'}</div>`}catch(x){busyS=false;$('sf').innerHTML=`<div class="card bad">${esc(x.message)}</div>`}}
+
+/* ==================== unified settings (API key etc.) ==================== */
+function openSet(){
+ $('prof').value=localStorage.getItem('prof')||'Pharmacy';
+ $('obModel').value=currentModel;
+ $('obKey').value=key;
+ obKeyStatus();$('setVolR').value=VOL();$('obSet').showModal()}
+function obKeyStatus(){
+ const k=($('obKey')&&$('obKey').value.trim())||'';
+ const s=$('obKeyStatus');if(!s)return;
+ s.innerHTML=!k?'<span class="bad">● No key saved — AI sub-tests are locked (demos still work).</span>'
+  :k.startsWith('AIza')?'<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
+  :'<span class="bad">● That doesn\'t look like a Google API key — it should start with "AIza".</span>'}
+function obSaveKey(){
+ const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
+ key=v;localStorage.setItem('gk',v);
+ obKeyStatus();obUpdateKeyBanners();
+ toast(v?'API key saved':'API key cleared')}
+async function obTestKey(){
+ const v=$('obKey').value.trim();if(!v){toast('Paste a key first');return}
+ const s=$('obKeyStatus');s.innerHTML='<span class="mut">● Testing key…</span>';
+ try{
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(v));
+  const d=await r.json();
+  s.innerHTML=d.error?'<span class="bad">✗ Key rejected: '+esc(d.error.message)+'</span>'
+   :'<span class="ok">✓ Key valid — '+(d.models||[]).length+' models available</span>';
+ }catch(e){s.innerHTML='<span class="bad">✗ Network error: '+esc(e.message)+'</span>'}}
+function obSetModel(m){currentModel=m;localStorage.setItem('gmodel',m)}
+function obSetProf(v){localStorage.setItem('prof',v);$('obTitle').textContent='OET | '+v}
+function obToggleKey(){const k=$('obKey');k.type=k.type==='password'?'text':'password'}
+function obUpdateKeyBanners(){
+ const has=!!(localStorage.getItem('gk')||'').trim();
+ const b=document.querySelector('.obKeyBanner');
+ if(!has&&OB.step===6&&$('main')&&$('main').querySelector('.card')){
+  if(b)return;
+  const d=document.createElement('div');d.className='msg bad obKeyBanner';
+  d.innerHTML='⚠ No Gemini API key saved — the AI-generated sub-tests can\'t run (built-in Listening/Reading demos still work). '
+   +'<button class="s" style="margin-left:8px" onclick="openSet()">Add key now</button>';
+  $('main').querySelector('.card').prepend(d);
+ }else if(b&&has){b.remove()}}
+if($('main'))new MutationObserver(()=>obUpdateKeyBanners()).observe($('main'),{childList:true});
+
+/* ==================== onboarding → engine hand-off (hardened) ==================== */
+function finishOnboarding(t){
+ const map={L:'Listening',R:'Reading',W:'Writing',S:'Speaking'};
+ clearInterval(OB.tick);OB.demo=null;OB.clock='none';
+ const c=$('clock');c.classList.remove('warn','crit');
+ if($('rail'))$('rail').style.display='none';
+ const dr=$('dRev');if(dr)dr.close();
+ toast('Launching '+map[t]+'…');
+ try{
+  if(!$('nav')){const nv=document.createElement('nav');nv.id='nav';
+   const m=document.querySelector('main');if(m)m.parentNode.insertBefore(nv,m)}
+  nav(t);window.scrollTo({top:0,behavior:'smooth'});
+ }catch(err){
+  console.error('[OET onboarding] hand-off failed:',err);
+  $('main').innerHTML=`<div class="card" style="border-color:var(--r)"><h3 style="margin-top:0;color:var(--r)">The ${esc(map[t])} engine could not be launched</h3>
+  <p><b>Error:</b> <code>${esc(err&&err.message||String(err))}</code> <span class="mut">(full details in the browser console — F12)</span></p>
+  <div class="dbar"><button class="p" onclick="obDemo('${t}')">Run built-in ${esc(map[t])} demo instead</button>
+  <button class="s" onclick="goStep(6)">← Back to readiness check</button></div></div>`}}
+
+/* ==================== init ==================== */
+if(localStorage.getItem('prof'))$('obTitle').textContent='OET | '+localStorage.getItem('prof');
+drawNav('home');drawRail();drawScore();goStep(1);
+window.addEventListener('load',()=>{
+ obUpdateKeyBanners();
+ if(!(localStorage.getItem('gk')||'').trim())setTimeout(openSet,400)});
+
+/* ==================== Google sign-in (Google Identity Services) ==================== */
+const G_CLIENT_ID='399146220569-4roj67gvr1e1snc51fitjv049eoiuhh2.apps.googleusercontent.com';
+function gDecode(t){try{const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(decodeURIComponent(escape(atob(b))))}catch(e){return null}}
+function gShow(u){
+ const on=!!u;$('gUser').style.display=on?'inline-flex':'none';$('gBtn').style.display=on?'none':'inline-block';
+ if(on){$('gName').textContent=u.name||u.email||'Signed in';if(u.picture)$('gPic').src=u.picture;else $('gPic').removeAttribute('src')}}
+function gOnCred(r){
+ const c=gDecode(r.credential);if(!c){toast('Sign-in failed – please try again.');return}
+ const u={name:c.name||'',email:c.email||'',picture:c.picture||''};
+ try{localStorage.setItem('guser',JSON.stringify(u))}catch(e){}
+ gShow(u);toast('Signed in as '+(u.name||u.email))}
+function gSignOut(){
+ try{localStorage.removeItem('guser')}catch(e){}
+ try{google.accounts.id.disableAutoSelect()}catch(e){}
+ gShow(null);toast('Signed out')}
+function gInit(){
+ let saved=null;try{saved=JSON.parse(localStorage.getItem('guser')||'null')}catch(e){}
+ gShow(saved);
+ if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';return}
+ google.accounts.id.initialize({client_id:G_CLIENT_ID,callback:gOnCred,auto_select:false});
+ google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'medium',type:'standard',text:'signin_with',shape:'rectangular'});
+ if(!saved)try{google.accounts.id.prompt()}catch(e){}}
+window.addEventListener('load',()=>setTimeout(gInit,300));
+</script>
+</body>
+</html>
