@@ -211,7 +211,7 @@ const $=id=>document.getElementById(id),
 function toast(m,ms=4000){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),ms)}
 let key=localStorage.getItem('gk')||'',
     currentModel=localStorage.getItem('gmodel')||'gemini-3.8-flash',
-    tick,DATA={},played={},chat=[],RP=null,cards=[],EX=null,hlon=false,pendingNav=null,
+    tick,DATA={},played={},AUDIO_CACHE={},chat=[],RP=null,cards=[],EX=null,hlon=false,pendingNav=null,
     busyW=false,busyS=false,lastLeftFor=-1,cfY=null,ac,MG,cur,progRAF;
 let CAND=localStorage.getItem('cand')||'Dr. Alex Mercer';
  $('candLbl').textContent='Candidate: '+CAND;
@@ -724,7 +724,26 @@ Requirements:
 
 OUTPUT: JSON only, no markdown fences, in exactly this shape:
 {"items":[{"title":"Extract 1","context":"You hear ...","dialogue":[{"s":"Pharmacist","t":"..."}],"questions":[{"q":"...","options":["A. ...","B. ...","C. ..."],"answer":"B","exp":"B is correct because ... A is wrong because ... C is wrong because ..."}]}]}`},
- C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · 6 questions each · 3 options · audio plays ONCE · one question on screen at a time',p:`Create OET Pharmacy Listening Part C: 2 different extracts (a pharmacist interview or presentation, about 550 words each), each with 6 multiple-choice questions (A, B, C) testing opinion, attitude, gist and detail. Use "dialogue". ${J}`}}},
+ C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · about 4–5 minutes each · 90 seconds to preview each set of 6 questions · 3 options · audio plays ONCE · one question on screen at a time',p:`Role: You are an expert OET test item writer specializing in Listening Part C (Pharmacy).
+
+Task: Generate exactly 2 distinct, realistic OET Listening Part C extracts. Each extract must contain a complete spoken transcript and exactly 6 multiple-choice questions.
+
+Requirements:
+1. Extract format and length:
+   * Each extract is a pharmacist interview, expert interview, or presentation on a pharmacy or healthcare topic.
+   * Write 600 to 750 spoken words in the dialogue for EACH extract, excluding speaker labels, context and questions. This is essential: at about 150 words per minute, each recording should last 4 to 5 minutes. Do not provide a short sample, summary, or outline.
+   * Use natural spoken British English, a realistic professional register, and one or two speakers. Include natural turn-taking or transitions and enough development and detail to sustain the full recording.
+   * Make the extracts different in topic and format. Give each a one-sentence context explaining who the candidate hears.
+
+2. Questions:
+   * Write exactly 6 questions for each extract, with exactly 3 options (A, B, C) per question.
+   * Test a range of main ideas, opinions, attitudes, implications and specific details, as in OET Listening Part C.
+   * Make all options plausible, but ensure only one is supported by the transcript. Vary the position of the correct answer.
+   * Include the correct answer letter and a concise explanation for each question.
+
+3. Before returning the result, check that there are exactly 2 extracts, each dialogue contains 600 to 750 spoken words, and each extract has exactly 6 questions.
+
+Use "dialogue" for the transcript, with each turn as {"s":"speaker name","t":"spoken words"}. ${J}`}}},
 R:{name:'Reading',parts:{
  A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`Create OET Pharmacy Reading Part A: 4 short related texts (Text A-D, about 150-200 words each: e.g. guideline, drug monograph, policy, patient leaflet) on ONE topic, in a single item using "texts". Add exactly 20 questions: first 7 matching ("Which text states...?" answer = letter A-D, no options), then 6 short-answer, then 7 sentence-completion (q contains ____). Answers 1-3 words or a letter. ${J}`},
  B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`Create OET Pharmacy Reading Part B: 6 different short workplace texts (about 100 words: emails, memos, protocols, notices), each with 1 multiple-choice question (A, B, C). Put the full workplace text in the "text" field of each item (never leave it empty). ${J}`},
@@ -887,6 +906,21 @@ function normLA(d){
   if(words<570||words>790)probs.push(tag+'recording is '+words+' words (needs about 600-750 for 4-5 minutes)');
  });
  return{ok:!probs.length,usable,probs}}
+function normLC(d){
+ const probs=[],items=Array.isArray(d&&d.items)?d.items:[];
+ if(items.length!==2)return{ok:false,probs:[`Expected 2 extracts, received ${items.length}`]};
+ items.forEach((it,n)=>{
+  const tag='Extract '+(n+1)+': ',dlg=Array.isArray(it&&it.dialogue)?it.dialogue:[];
+  const words=dlg.reduce((total,line)=>total+(String(line&&line.t||'').trim().match(/\S+/g)||[]).length,0);
+  const qs=Array.isArray(it&&it.questions)?it.questions:[];
+  if(words<600||words>750)probs.push(tag+`transcript is ${words} words (needs 600-750 for 4-5 minutes)`);
+  if(qs.length!==6)probs.push(tag+`has ${qs.length} questions instead of 6`);
+  qs.forEach((q,j)=>{
+   if(!Array.isArray(q&&q.options)||q.options.length!==3)probs.push(tag+`question ${j+1} does not have exactly 3 options`);
+   if(!/^[ABC]$/.test(String(q&&q.answer||'').trim()))probs.push(tag+`question ${j+1} has no valid answer letter`);
+  });
+ });
+ return{ok:!probs.length,probs}}
 async function startPart(sk,pk,rem){
  if(EX&&!EX.submitted)return;
  const st=partState(sk,pk);
@@ -906,7 +940,14 @@ async function startPart(sk,pk,rem){
    if(!best)throw lastErr||new Error('No valid Part A set was produced (no gaps appeared). Please start Part A again.');
    if(!best.v.ok)console.warn('Part A quality notes:',best.v.probs);
    d=best.d}
+  else if(id==='LC'){let valid=null,lastErr=null;
+   for(let t=1;t<=3;t++){
+    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking extract length and questions — attempt '+t+' of 3)</span></div>';
+    try{const cand=await gem(P.p),v=normLC(cand);if(!v.ok)throw new Error(v.probs.join('; '));valid=cand;break}catch(e){lastErr=e}}
+   if(!valid)throw new Error('Could not generate valid Listening Part C extracts after 3 attempts. '+(lastErr?lastErr.message:'Please start Part C again.'));
+   d=valid}
   else d=await gem(P.p);
+  if(sk==='L')await preloadListeningAudio(id,d);
   beginExam(sk,pk,d,rem)}catch(e){$('main').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function normPassage(it){
  const flat=v=>Array.isArray(v)?v.map(x=>typeof x==='string'?x:(x&&((x.label?x.label+'\n':'')+(x.body||x.text||x.t||'')))||'').join('\n\n'):(v&&typeof v==='object'?Object.values(v).join('\n'):v);
@@ -919,7 +960,7 @@ function beginExam(sk,pk,d,rem){
  if(sk==='R'&&pk!=='A')(d.items||[]).forEach(normPassage);
  d.items.forEach(it=>{if(it.notes)it.questions=(it.answers||[]).map(a=>({q:'',answer:a}))});
  let k=1;d.items.forEach(it=>it.questions.forEach(q=>q.k=k++));
- EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk};
+ EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk,lcStarted:{},lcPreparing:null,previewTick:null};
  played[id]={};lastLeftFor=-1;
  if(EX.mode==='seq'){EX.seq=[];d.items.forEach((it,i)=>it.questions.forEach(q=>EX.seq.push({it,i,q})))}
  renderShell();
@@ -945,6 +986,7 @@ function leftHTML(it,i){
  <div class="tx hlable txpane"><b>${esc(it.title||'')}</b>\n\n${it.text?esc(it.text):'⚠ The AI did not return a text for this question. Go back and start the part again to regenerate it.'}</div></div>`}
 function renderSeq(){
  const {it,q,i}=EX.seq[EX.cur],k=q.k;
+ if(EX.id==='LC'&&EX.cur===EX.seq.findIndex(s=>s.i===i)&&!EX.lcStarted[i]){startLCPreview(i);return}
  if(lastLeftFor!==i){lastLeftFor=i;hlon=false;$('leftPane').innerHTML=leftHTML(it,i)}
  const fl=!!EX.flags[k];
  $('rightPane').innerHTML=`<div class="card"><div class="qhead" style="display:flex;justify-content:space-between;gap:10px"><b>Question ${k} of ${EX.total}</b><span class="mut">${esc(it.title||'')}</span></div>
@@ -956,7 +998,27 @@ function renderSeq(){
  $('bBack').disabled=EX.cur===0;
  $('bNext').textContent=EX.cur===EX.seq.length-1?'Submit part ▶':'Next ▶';
  $('bFlag').className='s'+(fl?' flagged':'');$('bFlag').innerHTML=fl?'⚑ Unflag question':'⚑ Flag for review'}
+function startLCPreview(i){
+ if(EX.lcPreparing!==null)return;
+ EX.lcPreparing=i;
+ let left=90;
+ const qs=EX.seq.filter(s=>s.i===i);
+ $('rightPane').innerHTML=`<div class="card"><h3>Read the questions — Extract ${i+1}</h3><p class="mut">You have <b id="lcPreviewCountdown">01:30</b> to review all six questions. The Part C timer continues during this preview.</p>${qs.map((s,n)=>`<div class="q"><span class="n">${n+1}</span>${esc(s.q.q)}<div>${(s.q.options||[]).map(o=>`<div class="opt">${esc(o)}</div>`).join('')}</div></div>`).join('')}</div>`;
+ ['bBack','bFlag','bNext'].forEach(id=>{const b=$(id);if(b)b.disabled=true});
+ const review=document.querySelector('#main .bar button[onclick="openReview()"]');if(review)review.disabled=true;
+ EX.previewTick=setInterval(()=>{
+  left--;
+  const countdown=$('lcPreviewCountdown');
+  if(countdown)countdown.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+  if(left<=0){
+   clearInterval(EX.previewTick);EX.previewTick=null;EX.lcPreparing=null;EX.lcStarted[i]=true;
+   renderSeq();
+   ['bFlag','bNext'].forEach(id=>{const b=$(id);if(b)b.disabled=false});
+   const review=document.querySelector('#main .bar button[onclick="openReview()"]');if(review)review.disabled=false;
+  }
+ },1000)}
 function navQ(d){if(!EX||EX.submitted)return;
+ if(EX.lcPreparing!==null)return;
  if(d>0&&EX.cur>=EX.seq.length-1){askSubmit();return}
  EX.cur=Math.min(EX.seq.length-1,Math.max(0,EX.cur+d));renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
 function toggleFlag(){const k=EX.seq[EX.cur].q.k;EX.flags[k]?!delete EX.flags[k]:EX.flags[k]=1;renderSeq()}
@@ -996,17 +1058,20 @@ function renderAll(){
 function countAns(){return Object.values(EX.answers).filter(v=>v&&String(v).trim()!=='').length}
 function countFl(){return Object.keys(EX.flags).length}
 function openReview(){
+ if(EX.lcPreparing!==null)return;
  const cells=EX.mode==='seq'?EX.seq.map((s,n)=>({k:s.q.k,n:n+1})):EX.items.flatMap(it=>it.questions.map(q=>({k:q.k,n:q.k})));
  $('revGrid').innerHTML=cells.map(({k,n})=>{const ans=EX.answers[k]&&String(EX.answers[k]).trim()!=='',fl=EX.flags[k];
   return `<button class="pv ${ans?'ans':''} ${fl?'fl':''}" onclick="jumpTo(${k},${n})">${n}</button>`}).join('');
  $('revSum').textContent=`${countAns()} of ${EX.total} answered · ${countFl()} flagged`;
  $('rev').showModal()}
 function jumpTo(k,n){$('rev').close();
+ if(EX.lcPreparing!==null)return;
  if(EX.mode==='seq'){EX.cur=n-1;renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
  else{const el=$('qk'+k)||$('gb'+k)||$('t'+EX.id+k);el&&el.scrollIntoView({behavior:'smooth',block:'center'})}}
 function askSubmit(){ask('Submit this part?',`You have answered <b>${countAns()} of ${EX.total}</b> questions and flagged <b>${countFl()}</b> for review.<br><br><span class="bad">This part will be permanently locked and cannot be reopened.</span>`,()=>submitExam(),'Submit now')}
 function submitExam(){
  if(!EX||EX.submitted)return;EX.submitted=true;
+ clearInterval(EX.previewTick);EX.previewTick=null;
  lockPart(EX.sk,EX.pk,EX.combined?{rem:Math.max(0,EX.remaining),t:Date.now()}:null);
  document.querySelectorAll('dialog[open]').forEach(d=>d.close());
  clearInterval(tick);stopAudio();
@@ -1025,8 +1090,24 @@ async function ttsFetch(text,two,v1='Kore',v2='Charon'){
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:speech}})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
   const p=d.candidates[0].content.parts[0].inlineData;return{data:p.data,rate:+((p.mimeType||'').match(/rate=(\d+)/)||[0,24000])[1]}}catch(e){err=e}}throw err}
-function playPCM({data,rate},words){const bin=atob(data),n=bin.length>>1,buf=ac.createBuffer(1,n,rate),ch=buf.getChannelData(0);
+function audioRequest(L){
+ const names=[...new Set(L.map(l=>l.s))],two=names.length>1;
+ const style='Read this aloud as a realistic recording for an English listening exam: natural British accent, at a natural conversational speaking pace of about 150 words per minute (not slow, not rushed), with human intonation, brief natural pauses between turns and no long silences'+(two?', as a real conversation between two people.':'.')+'\n\n';
+ return{txt:style+(two?L.map(l=>'Speaker'+(names.indexOf(l.s)?2:1)+': '+l.t):L.map(l=>l.t)).join('\n'),
+  two,wc:L.reduce((n,l)=>n+String(l.t||'').split(/\s+/).filter(Boolean).length,0)}}
+async function preloadListeningAudio(id,d){
+ const items=Array.isArray(d&&d.items)?d.items:[],cache=AUDIO_CACHE[id]=[],fallback=[];
+ for(let i=0;i<items.length;i++){
+  $('main').innerHTML=`<div class="card">Preparing ${esc(SPEC.L.parts[id[1]].t)}… <span class="mut">(loading recording ${i+1} of ${items.length}; the timer starts when audio is ready)</span></div>`;
+  const req=audioRequest(Array.isArray(items[i].dialogue)?items[i].dialogue:[]);
+  try{cache[i]=decodePCM(await ttsFetch(req.txt,req.two))}catch(e){cache[i]=null;fallback.push(i+1)}
+ }
+ if(fallback.length)toast(`Recording${fallback.length===1?'':'s'} ${fallback.join(', ')} couldn't be preloaded; browser voice will be used.`);
+}
+function decodePCM({data,rate}){ac=ac||new AudioContext();const bin=atob(data),n=bin.length>>1,buf=ac.createBuffer(1,n,rate),ch=buf.getChannelData(0);
  for(let k=0;k<n;k++){let v=bin.charCodeAt(2*k)|(bin.charCodeAt(2*k+1)<<8);if(v>32767)v-=65536;ch[k]=v/32768}
+ return buf}
+function playPCM(audio,words){const buf=audio&&typeof audio.getChannelData==='function'?audio:decodePCM(audio),n=buf.length,rate=buf.sampleRate;
  const s=ac.createBufferSource();s.buffer=buf;s.connect(masterGain());cur=s;
  let pr=1;const wpm=words?words/(n/rate/60):0;
  if(wpm&&(wpm<135||wpm>165))pr=Math.max(.88,Math.min(1.2,150/wpm)); /* steer delivery to about 150 words per minute, like a real exam recording */
@@ -1042,12 +1123,12 @@ async function say(text){try{ac=ac||new AudioContext();ac.resume();await playPCM
 async function playCore(id,i,bid,pfid,ptid){
  if(played[id]&&(played[id][i]||played[id]['b'+i]))return;
  played[id]['b'+i]=1;ac=ac||new AudioContext();ac.resume();stopAudio();
- const b=$(bid),L=DATA[id].items[i].dialogue,names=[...new Set(L.map(l=>l.s))],two=names.length>1;
- const style='Read this aloud as a realistic recording for an English listening exam: natural British accent, at a natural conversational speaking pace of about 150 words per minute (not slow, not rushed), with human intonation, brief natural pauses between turns and no long silences'+(two?', as a real conversation between two people.':'.')+'\n\n';
- const txt=style+(two?L.map(l=>'Speaker'+(names.indexOf(l.s)?2:1)+': '+l.t):L.map(l=>l.t)).join('\n');
+ const b=$(bid),L=DATA[id].items[i].dialogue,{txt,two,wc}=audioRequest(L);
  b.disabled=true;b.textContent='Loading audio…';
- try{const a=await ttsFetch(txt,two);played[id][i]=1;b.textContent='❚❚ Audio playing (once only)';
-  const wc=L.reduce((n,l)=>n+String(l.t||'').split(/\s+/).filter(Boolean).length,0);
+ try{const cached=AUDIO_CACHE[id]&&Object.prototype.hasOwnProperty.call(AUDIO_CACHE[id],i),
+   a=cached?AUDIO_CACHE[id][i]:await ttsFetch(txt,two);
+  if(!a)throw new Error('Preloaded recording is unavailable');
+  played[id][i]=1;b.textContent='❚❚ Audio playing (once only)';
   const {done,dur}=playPCM(a,wc);if(pfid)startProg(pfid,ptid,dur);await done}
  catch(e){played[id][i]=1;b.textContent='Audio playing (browser voice fallback)';const sp={};for(const l of L){if(!(l.s in sp))sp[l.s]=Object.keys(sp).length;await browserSay(l.t,sp[l.s]%2)}}
  b.textContent='✔ Audio played';b.disabled=true;const f=$(pfid);if(f)f.style.width='100%'}
