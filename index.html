@@ -215,6 +215,10 @@ let key=localStorage.getItem('gk')||'',
     busyW=false,busyS=false,lastLeftFor=-1,cfY=null,ac,MG,cur,progRAF;
 let CAND=localStorage.getItem('cand')||'Dr. Alex Mercer';
  $('candLbl').textContent='Candidate: '+CAND;
+function setCandidateFromGoogle(u){
+ const name=String(u&&u.name||'').trim();
+ if(!name)return;
+ CAND=name;localStorage.setItem('cand',CAND);$('candLbl').textContent='Candidate: '+CAND}
 let fs=+(localStorage.getItem('fs')||15);
 document.documentElement.style.setProperty('--fs',fs+'px');
 function zoom(d){fs=Math.min(22,Math.max(12,fs+d));localStorage.setItem('fs',fs);document.documentElement.style.setProperty('--fs',fs+'px')}
@@ -658,7 +662,7 @@ function mmss(){clearInterval(tick);$('clock').textContent='--:--';$('clock').cl
 const J='Return JSON only: {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":""}]}]}. Omit unused fields. For multiple-choice, "answer" is the letter; for gap-fill/short-answer omit "options" and give a 1-3 word "answer". Use realistic, British-English pharmacy content as in the official OET.';
 const SPEC={
 L:{name:'Listening',parts:{
- A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
+ A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · 30 seconds to review the notes before each recording · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
 
 Task: Generate exactly 2 realistic OET Listening Part A scenarios. Each scenario must include a full dialogue transcript, a completion exercise (notes form) with 12 gaps, and an answer key with context snippets.
 
@@ -731,7 +735,7 @@ Task: Generate exactly 2 distinct, realistic OET Listening Part C extracts. Each
 Requirements:
 1. Extract format and length:
    * Each extract is a pharmacist interview, expert interview, or presentation on a pharmacy or healthcare topic.
-   * Write 600 to 750 spoken words in the dialogue for EACH extract, excluding speaker labels, context and questions. This is essential: at about 150 words per minute, each recording should last 4 to 5 minutes. Do not provide a short sample, summary, or outline.
+   * Write 1000 to 1200 spoken words in the dialogue for EACH extract, excluding speaker labels, context and questions. This is essential: at about 150 words per minute, each recording should last 4 to 5 minutes. Do not provide a short sample, summary, or outline.
    * Use natural spoken British English, a realistic professional register, and one or two speakers. Include natural turn-taking or transitions and enough development and detail to sustain the full recording.
    * Make the extracts different in topic and format. Give each a one-sentence context explaining who the candidate hears.
 
@@ -870,8 +874,7 @@ function part(sk){const S=SPEC[sk];curMenu=sk;$('secLabel').textContent=S.name;
 function normLA(d){
  const probs=[];let usable=true;
  const items=Array.isArray(d&&d.items)?d.items:[];
- if(items.length<2)return{ok:false,usable:false,probs:['Fewer than 2 extracts returned']};
- items.length=2;
+ if(items.length!==2)return{ok:false,usable:false,probs:[`Expected exactly 2 extracts, received ${items.length}`]};
  const clean=x=>String(x||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
  const GAP=/_{3,}|\[\s*\d+\s*\]|\(\s*\d+\s*\)|…+|\.{4,}/g;
  items.forEach((it,n)=>{
@@ -903,7 +906,7 @@ function normLA(d){
    const i=tx.indexOf(c,pos);
    if(i<0)probs.push(tag+'gap '+(j+1)+(tx.indexOf(c)<0?' answer is not in the recording':' is out of order'));
    else pos=i+c.length});
-  if(words<570||words>790)probs.push(tag+'recording is '+words+' words (needs about 600-750 for 4-5 minutes)');
+  if(words<600||words>750)probs.push(tag+'recording is '+words+' words (needs 600-750 for 4-5 minutes)');
  });
  return{ok:!probs.length,usable,probs}}
 function normLC(d){
@@ -930,16 +933,12 @@ async function startPart(sk,pk,rem){
  const P=SPEC[sk].parts[pk],id=sk+pk;mmss();stopAudio();$('secLabel').textContent=P.t;
  $('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(AI generation – a few seconds)</span></div>';
  try{let d;
-  if(id==='LA'){let best=null,lastErr=null;
+  if(id==='LA'){let valid=null,lastErr=null;
    for(let t=1;t<=3;t++){
-    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking the notes against the recording — attempt '+t+' of 3)</span></div>';
-    let cand;try{cand=await gem(P.p)}catch(e){lastErr=e;continue}
-    const v=normLA(cand);
-    if(v.usable&&(!best||v.probs.length<best.v.probs.length))best={d:cand,v};
-    if(v.ok)break}
-   if(!best)throw lastErr||new Error('No valid Part A set was produced (no gaps appeared). Please start Part A again.');
-   if(!best.v.ok)console.warn('Part A quality notes:',best.v.probs);
-   d=best.d}
+    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking transcript duration and notes — attempt '+t+' of 3)</span></div>';
+    try{const cand=await gem(P.p),v=normLA(cand);if(!v.ok)throw new Error(v.probs.join('; '));valid=cand;break}catch(e){lastErr=e}}
+   if(!valid)throw new Error('Could not generate valid Listening Part A consultations after 3 attempts. '+(lastErr?lastErr.message:'Please start Part A again.'));
+   d=valid}
   else if(id==='LC'){let valid=null,lastErr=null;
    for(let t=1;t<=3;t++){
     if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking extract length and questions — attempt '+t+' of 3)</span></div>';
@@ -960,7 +959,7 @@ function beginExam(sk,pk,d,rem){
  if(sk==='R'&&pk!=='A')(d.items||[]).forEach(normPassage);
  d.items.forEach(it=>{if(it.notes)it.questions=(it.answers||[]).map(a=>({q:'',answer:a}))});
  let k=1;d.items.forEach(it=>it.questions.forEach(q=>q.k=k++));
- EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk,lcStarted:{},lcPreparing:null,previewTick:null};
+ EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk,lcStarted:{},lcPreparing:null,previewTick:null,laPreparing:{},laPreviewTicks:{}};
  played[id]={};lastLeftFor=-1;
  if(EX.mode==='seq'){EX.seq=[];d.items.forEach((it,i)=>it.questions.forEach(q=>EX.seq.push({it,i,q})))}
  renderShell();
@@ -1037,7 +1036,7 @@ function notesHTML(id,it){let h='<div class="notes"><div class="nt">Complete the
 function itemBlock(it,i){
  const id=EX.id;let h=`<div class="card"><h3>${esc(it.title||'')}</h3>${it.context?`<p class="mut">${esc(it.context)}</p>`:''}`;
  if(it.dialogue){const pd=played[id]&&(played[id][i]||played[id]['b'+i]);
-  h+=`<div class="player"><button class="p" id="pb${id}${i}" onclick="playCore('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
+  h+=`<div class="player"><button class="p" id="pb${id}${i}" onclick="${id==='LA'?`startLAPreview('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')`:`playCore('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')`}" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
   <div class="ptrack"><div class="pfill" id="pf${id}${i}"></div></div><span class="mut" id="pt${id}${i}"></span>
   <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" title="Volume" style="width:90px"></div>
   <p class="mut">Plays once — no pause, replay or speed change.</p><div class="tx" id="tr${id}${i}" style="display:none"></div>`}
@@ -1072,6 +1071,7 @@ function askSubmit(){ask('Submit this part?',`You have answered <b>${countAns()}
 function submitExam(){
  if(!EX||EX.submitted)return;EX.submitted=true;
  clearInterval(EX.previewTick);EX.previewTick=null;
+ Object.values(EX.laPreviewTicks||{}).forEach(clearInterval);
  lockPart(EX.sk,EX.pk,EX.combined?{rem:Math.max(0,EX.remaining),t:Date.now()}:null);
  document.querySelectorAll('dialog[open]').forEach(d=>d.close());
  clearInterval(tick);stopAudio();
@@ -1120,6 +1120,23 @@ function startProg(pfId,ptId,dur){const t0=performance.now();cancelAnimationFram
 function bestVoice(){const v=speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang));const rank=x=>(/natural|online|neural/i.test(x.name)?4:0)+(/google|premium|enhanced/i.test(x.name)?2:0)+(/GB/.test(x.lang)?1:0);return v.sort((a,b)=>rank(b)-rank(a))[0]}
 function browserSay(text,i=0){const u=new SpeechSynthesisUtterance(text),v=bestVoice();if(v)u.voice=v;u.pitch=i?1.15:0.9;u.rate=1;u.volume=VOL();speechSynthesis.speak(u);return new Promise(r=>u.onend=r)}
 async function say(text){try{ac=ac||new AudioContext();ac.resume();await playPCM(await ttsFetch(text,false,'Puck')).done}catch(e){browserSay(text)}}
+function startLAPreview(id,i,bid,pfid,ptid){
+ if(!EX||EX.submitted||EX.laPreparing[i]||(played[id]&&(played[id][i]||played[id]['b'+i])))return;
+ const b=$(bid);if(!b)return;
+ EX.laPreparing[i]=true;b.disabled=true;
+ let left=30;
+ b.textContent='Read notes: 00:30';
+ EX.laPreviewTicks[i]=setInterval(()=>{
+  if(!EX||EX.submitted){clearInterval(EX&&EX.laPreviewTicks[i]);return}
+  left--;
+  b.textContent='Read notes: 00:'+String(left).padStart(2,'0');
+  if(left<=0){
+   clearInterval(EX.laPreviewTicks[i]);EX.laPreviewTicks[i]=null;EX.laPreparing[i]=false;
+   b.textContent='Starting audio…';
+   playCore(id,i,bid,pfid,ptid)
+  }
+ },1000)
+}
 async function playCore(id,i,bid,pfid,ptid){
  if(played[id]&&(played[id][i]||played[id]['b'+i]))return;
  played[id]['b'+i]=1;ac=ac||new AudioContext();ac.resume();stopAudio();
@@ -1418,6 +1435,7 @@ function gOnCred(r){
  const c=gDecode(r.credential);if(!c){toast('Sign-in failed – please try again.');return}
  const u={name:c.name||'',email:c.email||'',picture:c.picture||''};
  try{localStorage.setItem('guser',JSON.stringify(u))}catch(e){}
+ setCandidateFromGoogle(u);
   const who=u.email||u.name,owner=localStorage.getItem('gkOwner');
   if(owner&&owner!==who){key='';localStorage.removeItem('gk')}   /* different person: don't reuse the previous key */
   else if(!owner&&key)localStorage.setItem('gkOwner',who);
@@ -1428,6 +1446,7 @@ function gSignOut(){
  gShow(null);gateDraw();toast('Signed out')}
 function gInit(){
  let saved=null;try{saved=JSON.parse(localStorage.getItem('guser')||'null')}catch(e){}
+ setCandidateFromGoogle(saved);
  gShow(saved);
  if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';gateDraw();return}
  google.accounts.id.initialize({client_id:G_CLIENT_ID,callback:gOnCred,auto_select:false});
