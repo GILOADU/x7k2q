@@ -168,6 +168,7 @@ nav button.lock.on{background:#8a97a5;color:#fff}
     <option>Pharmacy</option><option>Nursing</option><option>Medicine</option><option>Dentistry</option><option>Physiotherapy</option>
   </select>
   <label>Gemini API key <span class="mut">(needed for AI-generated sub-tests)</span></label>
+  <button class="s" style="width:100%;margin:6px 0 8px" onclick="window.open('https://aistudio.google.com/apikey','_blank','noopener')">↗ Open Google AI Studio to Create Key</button>
   <div style="display:flex;gap:8px;margin:6px 0">
     <input type="password" id="obKey" placeholder="AIzaSy…" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
     <button class="s" onclick="obToggleKey()" title="Show / hide">👁</button>
@@ -723,7 +724,7 @@ Requirements:
    * "exp" is a concise explanation (2-3 sentences) stating why the correct option is right (with the relevant words from the audio) and why each of the other two options is wrong.
 
 OUTPUT: JSON only, no markdown fences, in exactly this shape:
-{"items":[{"title":"Extract 1","context":"You hear ...","dialogue":[{"s":"Pharmacist","t":"..."}],"questions":[{"q":"...","options":["A. ...","B. ...","C. ..."],"answer":"B","exp":"B is correct because ... A is wrong because ... C is wrong because ..."}]}]}`},
+{"items":[{"title":"Extract 1","context":"You hear ...","dialogue":[{"s":"Pharmacist","t":"..."}],"questions":[{"q":"...","options":["A. ...","B. ...","C. ...","answer":"B","exp":"B is correct because ... A is wrong because ... C is wrong because ..."}]}]}`},
  C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · 6 questions each · 3 options · audio plays ONCE · one question on screen at a time',p:`Create OET Pharmacy Listening Part C: 2 different extracts (a pharmacist interview or presentation, about 550 words each), each with 6 multiple-choice questions (A, B, C) testing opinion, attitude, gist and detail. Use "dialogue". ${J}`}}},
 R:{name:'Reading',parts:{
  A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`Create OET Pharmacy Reading Part A: 4 short related texts (Text A-D, about 150-200 words each: e.g. guideline, drug monograph, policy, patient leaflet) on ONE topic, in a single item using "texts". Add exactly 20 questions: first 7 matching ("Which text states...?" answer = letter A-D, no options), then 6 short-answer, then 7 sentence-completion (q contains ____). Answers 1-3 words or a letter. ${J}`},
@@ -1211,8 +1212,7 @@ async function endS(){mmss();stopAudio();if(MIC.sr){MIC.sr.onend=null;try{MIC.sr
 
 /* ==================== unified settings (API key etc.) ==================== */
 function openSet(){
- $('prof').value=localStorage.getItem('prof')||'Pharmacy';
- $('obModel').value=currentModel;
+ $('prof').value=localStorage.getItem('prof')\vert{}\vert{}'Pharmacy';$('obModel').value=currentModel;
  $('obKey').value=key;
  obKeyStatus();$('setVolR').value=VOL();$('obSet').showModal()}
 function obKeyStatus(){
@@ -1222,7 +1222,7 @@ function obKeyStatus(){
   :k.startsWith('AIza')?'<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
   :'<span class="bad">● That doesn\'t look like a Google API key — it should start with "AIza".</span>'}
 function obSaveKey(){
- const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
+ const v=$('obKey').value.trim().replace(/^["']\vert{}["']$/g,'');
  key=v;localStorage.setItem('gk',v);
  obKeyStatus();obUpdateKeyBanners();
  gateDraw();
@@ -1239,6 +1239,12 @@ async function obTestKey(){
 function obSetModel(m){currentModel=m;localStorage.setItem('gmodel',m)}
 function obSetProf(v){localStorage.setItem('prof',v);$('obTitle').textContent='OET | '+v}
 function obToggleKey(){const k=$('obKey');k.type=k.type==='password'?'text':'password'}
+
+function addKeyAndRedirect(){
+  window.open('https://aistudio.google.com/apikey','_blank','noopener');
+  openSet();
+}
+
 function obUpdateKeyBanners(){
  const has=!!(localStorage.getItem('gk')||'').trim();
  const b=document.querySelector('.obKeyBanner');
@@ -1246,7 +1252,7 @@ function obUpdateKeyBanners(){
   if(b)return;
   const d=document.createElement('div');d.className='msg bad obKeyBanner';
   d.innerHTML='⚠ No Gemini API key saved — the AI-generated sub-tests can\'t run (built-in Listening/Reading demos still work). '
-   +'<button class="s" style="margin-left:8px" onclick="openSet()">Add key now</button>';
+   +'<button class="s" style="margin-left:8px" onclick="addKeyAndRedirect()">Add key now</button>';
   $('main').querySelector('.card').prepend(d);
  }else if(b&&has){b.remove()}}
 if($('main'))new MutationObserver(()=>obUpdateKeyBanners()).observe($('main'),{childList:true});
@@ -1311,13 +1317,12 @@ function gateDraw(){
   <div class="actions"><span class="mut">Your key stays in this browser only.</span><span style="flex:1"></span>
    <button class="p" id="gateSave" onclick="gateSaveKey()" disabled>Save &amp; continue →</button></div>`}
 function gateKeyHint(){
- const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg');
- $('gateSave').disabled=!v.startsWith('AIza')||v.length<30;
+ const v=$('gateKey').value.trim().replace(/^["']\vert{}["']$/g,''),m=$('gateKeyMsg');$('gateSave').disabled=!v.startsWith('AIza')||v.length<30;
  if(!v){m.className='msg wait';m.textContent='● Waiting for your key'}
  else if(!v.startsWith('AIza')){m.className='msg bad';m.textContent='✗ Gemini keys start with "AIza"'}
  else{m.className='msg wait';m.textContent='● Looks right — click Save & continue'}}
 async function gateSaveKey(){
- const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
+ const v=$('gateKey').value.trim().replace(/^["']\vert{}["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
  if(b.disabled)return;
  b.disabled=true;m.className='msg run';m.textContent='● Checking your key…';
  try{
@@ -1334,7 +1339,7 @@ const G_CLIENT_ID='399146220569-4roj67gvr1e1snc51fitjv049eoiuhh2.apps.googleuser
 function gDecode(t){try{const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(decodeURIComponent(escape(atob(b))))}catch(e){return null}}
 function gShow(u){
  const on=!!u;$('gUser').style.display=on?'inline-flex':'none';$('gBtn').style.display=on?'none':'inline-block';
- if(on){$('gName').textContent=u.name||u.email||'Signed in';if(u.picture)$('gPic').src=u.picture;else $('gPic').removeAttribute('src')}}
+ if(on){$('gName').textContent=u.name||u.email||'Signed in';if(u.picture)$('gPic').src=u.picture;else$('gPic').removeAttribute('src')}}
 function gOnCred(r){
  const c=gDecode(r.credential);if(!c){toast('Sign-in failed – please try again.');return}
  const u={name:c.name||'',email:c.email||'',picture:c.picture||''};
