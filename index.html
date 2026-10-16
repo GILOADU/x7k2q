@@ -169,7 +169,7 @@ nav button.lock.on{background:#8a97a5;color:#fff}
   </select>
   <label>Gemini API key <span class="mut">(needed for AI-generated sub-tests)</span></label>
   <div style="display:flex;gap:8px;margin:6px 0">
-    <input type="password" id="obKey" placeholder="AIzaSy…" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
+    <input type="password" id="obKey" placeholder="Paste your Gemini API key" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
     <button class="s" onclick="obToggleKey()" title="Show / hide">👁</button>
   </div>
   <div class="mut" id="obKeyStatus"></div>
@@ -1219,8 +1219,7 @@ function obKeyStatus(){
  const k=($('obKey')&&$('obKey').value.trim())||'';
  const s=$('obKeyStatus');if(!s)return;
  s.innerHTML=!k?'<span class="bad">● No key saved — AI sub-tests are locked (demos still work).</span>'
-  :k.length >= 25 ? '<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
-  :'<span class="bad">● That doesn\'t look like a valid Google API key.</span>'}
+  :'<span class="ok">● Key entered — use “Test key” to verify it.</span>'}
 function obSaveKey(){
  const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
  key=v;localStorage.setItem('gk',v);
@@ -1300,11 +1299,11 @@ function gateDraw(){
   <ol>
    <li>Click the button below (opens Google AI Studio in a new tab).</li>
    <li>Click <b>Create API key</b> (choose or create a project if asked).</li>
-   <li>Copy the key (it starts with <b>AIza</b>) and paste it here.</li>
+   <li>Copy the key and paste it here.</li>
   </ol>
   <button class="s" onclick="window.open('${AI_STUDIO_URL}','_blank','noopener')">↗ Open Google AI Studio</button>
   <div style="display:flex;gap:8px;margin:14px 0 6px">
-   <input type="password" id="gateKey" placeholder="Paste your key (AIza…)" style="flex:1;width:auto" autocomplete="off" oninput="gateKeyHint()" onkeydown="if(event.key==='Enter')gateSaveKey()">
+   <input type="password" id="gateKey" placeholder="Paste your Gemini API key" style="flex:1;width:auto" autocomplete="off" oninput="gateKeyHint()" onkeydown="if(event.key==='Enter')gateSaveKey()">
    <button class="s" onclick="const k=$('gateKey');k.type=k.type==='password'?'text':'password'" title="Show / hide">👁</button>
   </div>
   <div class="msg wait" id="gateKeyMsg">● Waiting for your key</div>
@@ -1312,11 +1311,9 @@ function gateDraw(){
    <button class="p" id="gateSave" onclick="gateSaveKey()" disabled>Save &amp; continue →</button></div>`}
 function gateKeyHint(){
  const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg');
- const isValid = v.startsWith('AIza') || v.startsWith('AQ.');
- $('gateSave').disabled=!isValid || v.length < 20;
+ $('gateSave').disabled=!v;
  if(!v){m.className='msg wait';m.textContent='● Waiting for your key'}
- else if(!isValid){m.className='msg bad';m.textContent='✗ Gemini keys should start with "AIza" or "AQ."'}
- else{m.className='msg wait';m.textContent='● Looks right — click Save & continue'}}
+ else{m.className='msg wait';m.textContent='● Key entered — it will be checked when you continue'}}
 async function gateSaveKey(){
  const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
  if(b.disabled)return;
