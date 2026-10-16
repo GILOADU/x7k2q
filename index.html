@@ -1219,8 +1219,8 @@ function obKeyStatus(){
  const k=($('obKey')&&$('obKey').value.trim())||'';
  const s=$('obKeyStatus');if(!s)return;
  s.innerHTML=!k?'<span class="bad">● No key saved — AI sub-tests are locked (demos still work).</span>'
-  :k.startsWith('AIza')?'<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
-  :'<span class="bad">● That doesn\'t look like a Google API key — it should start with "AIza".</span>'}
+  :k.length >= 25 ? '<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
+  :'<span class="bad">● That doesn\'t look like a valid Google API key.</span>'}
 function obSaveKey(){
  const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
  key=v;localStorage.setItem('gk',v);
@@ -1312,9 +1312,10 @@ function gateDraw(){
    <button class="p" id="gateSave" onclick="gateSaveKey()" disabled>Save &amp; continue →</button></div>`}
 function gateKeyHint(){
  const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg');
- $('gateSave').disabled=!v.startsWith('AIza')||v.length<30;
+ const isValid = v.startsWith('AIza') || v.startsWith('AQ.');
+ $('gateSave').disabled=!isValid || v.length < 20;
  if(!v){m.className='msg wait';m.textContent='● Waiting for your key'}
- else if(!v.startsWith('AIza')){m.className='msg bad';m.textContent='✗ Gemini keys start with "AIza"'}
+ else if(!isValid){m.className='msg bad';m.textContent='✗ Gemini keys should start with "AIza" or "AQ."'}
  else{m.className='msg wait';m.textContent='● Looks right — click Save & continue'}}
 async function gateSaveKey(){
  const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
