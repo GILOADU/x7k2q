@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OET | Pharmacy – Practice Test</title>
 <style>
+#gate{position:fixed;inset:0;z-index:100;background:#f3f5f8;display:none;overflow:auto;align-items:center;justify-content:center;padding:16px}
+#gate.show{display:flex}
+#gate .card{max-width:540px;width:100%;margin:0}
+#gate ol{padding-left:20px;line-height:1.9}
 :root{--b:#00539f;--bd:#003b73;--l:#e6eef7;--r:#c0392b;--g:#1e8449;--amber:#e8a13a;--fs:15px}
 *{box-sizing:border-box}
 body{margin:0;font:var(--fs)/1.55 Arial,Helvetica,sans-serif;color:#222;background:#f3f5f8}
@@ -196,7 +200,7 @@ nav button.lock.on{background:#8a97a5;color:#fff}
 <dialog id="sb" style="width:720px"><h3 style="margin-top:0">🏆 Score tracker</h3>
 <div id="sbBody" style="max-height:62vh;overflow:auto"></div>
 <p style="text-align:right;margin:12px 0 0"><button class="s" onclick="$('sb').close()">Close</button></p></dialog>
-
+<div id="gate"><div class="card" id="gateBox"></div></div>
 <div id="toasts"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1221,6 +1225,7 @@ function obSaveKey(){
  const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
  key=v;localStorage.setItem('gk',v);
  obKeyStatus();obUpdateKeyBanners();
+ gateDraw();
  toast(v?'API key saved':'API key cleared')}
 async function obTestKey(){
  const v=$('obKey').value.trim();if(!v){toast('Paste a key first');return}
@@ -1267,10 +1272,62 @@ function finishOnboarding(t){
 
 /* ==================== init ==================== */
 if(localStorage.getItem('prof'))$('obTitle').textContent='OET | '+localStorage.getItem('prof');
-drawNav('home');drawRail();drawScore();goStep(1);
+drawNav('home');drawRail();drawScore();goStep(1);gateDraw();
 window.addEventListener('load',()=>{
  obUpdateKeyBanners();
- if(!(localStorage.getItem('gk')||'').trim())setTimeout(openSet,400)});
+});
+
+/* ==================== sign-in + API key gate ==================== */
+var AI_STUDIO_URL='https://aistudio.google.com/apikey';
+function gateUser(){try{return JSON.parse(localStorage.getItem('guser')||'null')}catch(e){return null}}
+function gateDraw(){
+ const g=$('gate'),box=$('gateBox'),u=gateUser(),has=!!(key||'').trim();
+ if(u&&has){g.classList.remove('show');return}
+ g.classList.add('show');
+ if(!u){
+  box.innerHTML=`<h2>Welcome</h2>
+   <p class="mut">Step 1 of 2 · Sign in with Google to continue.</p>
+   <div id="gateBtn" style="margin:16px 0;min-height:44px"></div>
+   <div class="msg wait" id="gateMsg">● Loading Google sign-in…</div>`;
+  if(window.google&&google.accounts&&google.accounts.id){
+   $('gateMsg').style.display='none';
+   google.accounts.id.renderButton($('gateBtn'),{theme:'outline',size:'large',type:'standard',text:'signin_with',shape:'rectangular'});
+  }
+  return}
+ box.innerHTML=`<h2>Connect your Gemini API key</h2>
+  <p class="mut">Step 2 of 2 · Signed in as <b>${esc(u.name||u.email)}</b> · <a href="#" onclick="gSignOut();return false">not you?</a></p>
+  <p>The AI sub-tests need a free Gemini API key. If you don't have an active one:</p>
+  <ol>
+   <li>Click the button below (opens Google AI Studio in a new tab).</li>
+   <li>Click <b>Create API key</b> (choose or create a project if asked).</li>
+   <li>Copy the key (it starts with <b>AIza</b>) and paste it here.</li>
+  </ol>
+  <button class="s" onclick="window.open('${AI_STUDIO_URL}','_blank','noopener')">↗ Open Google AI Studio</button>
+  <div style="display:flex;gap:8px;margin:14px 0 6px">
+   <input type="password" id="gateKey" placeholder="Paste your key (AIza…)" style="flex:1;width:auto" autocomplete="off" oninput="gateKeyHint()" onkeydown="if(event.key==='Enter')gateSaveKey()">
+   <button class="s" onclick="const k=$('gateKey');k.type=k.type==='password'?'text':'password'" title="Show / hide">👁</button>
+  </div>
+  <div class="msg wait" id="gateKeyMsg">● Waiting for your key</div>
+  <div class="actions"><span class="mut">Your key stays in this browser only.</span><span style="flex:1"></span>
+   <button class="p" id="gateSave" onclick="gateSaveKey()" disabled>Save &amp; continue →</button></div>`}
+function gateKeyHint(){
+ const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg');
+ $('gateSave').disabled=!v.startsWith('AIza')||v.length<30;
+ if(!v){m.className='msg wait';m.textContent='● Waiting for your key'}
+ else if(!v.startsWith('AIza')){m.className='msg bad';m.textContent='✗ Gemini keys start with "AIza"'}
+ else{m.className='msg wait';m.textContent='● Looks right — click Save & continue'}}
+async function gateSaveKey(){
+ const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
+ if(b.disabled)return;
+ b.disabled=true;m.className='msg run';m.textContent='● Checking your key…';
+ try{
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(v));
+  const d=await r.json();
+  if(d.error){m.className='msg bad';m.textContent='✗ Key rejected: '+d.error.message;b.disabled=false;return}
+ }catch(e){toast('Could not verify the key (network issue) – saved anyway.',5000)}
+ key=v;localStorage.setItem('gk',v);
+ const u=gateUser();if(u)localStorage.setItem('gkOwner',u.email||u.name||'');
+ toast('API key saved');gateDraw()}
 
 /* ==================== Google sign-in (Google Identity Services) ==================== */
 const G_CLIENT_ID='399146220569-4roj67gvr1e1snc51fitjv049eoiuhh2.apps.googleusercontent.com';
@@ -1282,16 +1339,20 @@ function gOnCred(r){
  const c=gDecode(r.credential);if(!c){toast('Sign-in failed – please try again.');return}
  const u={name:c.name||'',email:c.email||'',picture:c.picture||''};
  try{localStorage.setItem('guser',JSON.stringify(u))}catch(e){}
- gShow(u);toast('Signed in as '+(u.name||u.email))}
+  const who=u.email||u.name,owner=localStorage.getItem('gkOwner');
+  if(owner&&owner!==who){key='';localStorage.removeItem('gk')}   /* different person: don't reuse the previous key */
+  else if(!owner&&key)localStorage.setItem('gkOwner',who);
+ gShow(u);gateDraw();toast('Signed in as '+(u.name||u.email))}
 function gSignOut(){
  try{localStorage.removeItem('guser')}catch(e){}
  try{google.accounts.id.disableAutoSelect()}catch(e){}
- gShow(null);toast('Signed out')}
+ gShow(null);gateDraw();toast('Signed out')}
 function gInit(){
  let saved=null;try{saved=JSON.parse(localStorage.getItem('guser')||'null')}catch(e){}
  gShow(saved);
- if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';return}
+ if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';gateDraw();return}
  google.accounts.id.initialize({client_id:G_CLIENT_ID,callback:gOnCred,auto_select:false});
+ gateDraw();
  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'medium',type:'standard',text:'signin_with',shape:'rectangular'});
  if(!saved)try{google.accounts.id.prompt()}catch(e){}}
 window.addEventListener('load',()=>setTimeout(gInit,300));
