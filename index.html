@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OET | Pharmacy – Practice Test</title>
 <style>
-#gate{position:fixed;inset:0;z-index:100;background:#f3f5f8;display:none;overflow:auto;align-items:center;justify-content:center;padding:16px}
-#gate.show{display:flex}
-#gate .card{max-width:540px;width:100%;margin:0}
-#gate ol{padding-left:20px;line-height:1.9}
 :root{--b:#00539f;--bd:#003b73;--l:#e6eef7;--r:#c0392b;--g:#1e8449;--amber:#e8a13a;--fs:15px}
 *{box-sizing:border-box}
 body{margin:0;font:var(--fs)/1.55 Arial,Helvetica,sans-serif;color:#222;background:#f3f5f8}
@@ -169,7 +165,7 @@ nav button.lock.on{background:#8a97a5;color:#fff}
   </select>
   <label>Gemini API key <span class="mut">(needed for AI-generated sub-tests)</span></label>
   <div style="display:flex;gap:8px;margin:6px 0">
-    <input type="password" id="obKey" placeholder="Paste your Gemini API key" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
+    <input type="password" id="obKey" placeholder="AIzaSy…" style="flex:1;padding:6px;font:inherit" oninput="obKeyStatus()">
     <button class="s" onclick="obToggleKey()" title="Show / hide">👁</button>
   </div>
   <div class="mut" id="obKeyStatus"></div>
@@ -200,7 +196,7 @@ nav button.lock.on{background:#8a97a5;color:#fff}
 <dialog id="sb" style="width:720px"><h3 style="margin-top:0">🏆 Score tracker</h3>
 <div id="sbBody" style="max-height:62vh;overflow:auto"></div>
 <p style="text-align:right;margin:12px 0 0"><button class="s" onclick="$('sb').close()">Close</button></p></dialog>
-<div id="gate"><div class="card" id="gateBox"></div></div>
+
 <div id="toasts"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -211,14 +207,10 @@ const $=id=>document.getElementById(id),
 function toast(m,ms=4000){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toasts').appendChild(t);setTimeout(()=>t.remove(),ms)}
 let key=localStorage.getItem('gk')||'',
     currentModel=localStorage.getItem('gmodel')||'gemini-3.8-flash',
-    tick,DATA={},played={},AUDIO_CACHE={},chat=[],RP=null,cards=[],EX=null,hlon=false,pendingNav=null,
+    tick,DATA={},played={},chat=[],RP=null,cards=[],EX=null,hlon=false,pendingNav=null,
     busyW=false,busyS=false,lastLeftFor=-1,cfY=null,ac,MG,cur,progRAF;
 let CAND=localStorage.getItem('cand')||'Dr. Alex Mercer';
  $('candLbl').textContent='Candidate: '+CAND;
-function setCandidateFromGoogle(u){
- const name=String(u&&u.name||'').trim();
- if(!name)return;
- CAND=name;localStorage.setItem('cand',CAND);$('candLbl').textContent='Candidate: '+CAND}
 let fs=+(localStorage.getItem('fs')||15);
 document.documentElement.style.setProperty('--fs',fs+'px');
 function zoom(d){fs=Math.min(22,Math.max(12,fs+d));localStorage.setItem('fs',fs);document.documentElement.style.setProperty('--fs',fs+'px')}
@@ -659,31 +651,31 @@ function timer(s,done,label='Time left'){clearInterval(tick);if(EX)EX.remaining=
 function mmss(){clearInterval(tick);$('clock').textContent='--:--';$('clock').classList.remove('warn','crit')}
 
 /* exam specification */
-const J='Return valid JSON only, with no markdown fences, using the exact top-level shape {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"notes":[{"h":""},{"t":"","a":[""],"v":[""],"x":[""],"lv":0}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":"","exp":""}]}]}. Include only fields required by this task. For multiple choice, options and answer must agree and answer is the letter only; include a concise explanation when requested. For completion questions, omit options and give the exact expected answer in "answer". Follow task-specific counts and formats over this generic example. Use realistic, unbiased pharmacy and healthcare content, British English, and the skills tested in the OET.';
+const J='Return JSON only: {"items":[{"title":"","context":"","dialogue":[{"s":"","t":""}],"text":"","texts":[{"label":"Text A","body":""}],"questions":[{"q":"","options":["A. ","B. ","C. "],"answer":""}]}]}. Omit unused fields. For multiple-choice, "answer" is the letter; for gap-fill/short-answer omit "options" and give a 1-3 word "answer". Use realistic, British-English pharmacy content as in the official OET.';
 const SPEC={
 L:{name:'Listening',parts:{
- A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · 30 seconds to review the notes before each recording · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
+ A:{min:15,t:'Part A – Consultation extracts',d:'24 questions · 2 consultations (each recording about 4 to 5 minutes) · complete the notes with up to 3 words · audio plays ONCE · Part A runs on its own 15-minute timer (Listening is about 40 minutes in total).',p:`Role: You are an expert OET test item writer specializing in Listening Part A (Pharmacy).
 
 Task: Generate exactly 2 realistic OET Listening Part A scenarios. Each scenario must include a full dialogue transcript, a completion exercise (notes form) with 12 gaps, and an answer key with context snippets.
 
 Requirements:
 
 1. Scenario & Context:
-   * Consultation Type: a realistic healthcare-professional and patient consultation, with Pharmacist and Patient as speakers.
+   * Consultation Type: a consultation between a healthcare professional (the pharmacist, or another clinician) and a patient (or the patient's relative).
    * Medical Condition: choose a different, realistic condition for each extract (for example asthma management, knee pain and NSAIDs, type 2 diabetes, hypertension, post-operative recovery, a skin condition, a child's ear infection). The two extracts must involve different patients and different conditions.
    * Target Audio Duration: 4 to 5 minutes when recorded/spoken.
-   * Each recording must last 4 to 5 minutes when spoken at a natural consultation pace. Develop the consultation naturally for the full duration; do not pad it with repetition or unnecessary detail.
+   * Transcript Length: 600 to 750 words per extract (never more than 750), roughly 35-50 short turns, so that it sounds natural at a conversational pace.
 
 2. Part 1: The Listening Transcript ("dialogue"):
    * Write a natural-sounding consultation between the Pharmacist and the Patient in spoken British English.
-   * Include typical features of spoken medical consultations: clarification, brief back-and-forth exchanges, and symptoms described in everyday language. Use hesitations sparingly and only where natural.
+   * Include typical features of spoken medical consultations: clarification, realistic pauses/hesitations (well, erm, you know), brief back-and-forth exchanges, and symptoms described in non-expert, everyday language.
    * Include at least one self-correction or distractor (e.g. the patient first says one number or name, then corrects it).
    * Make the dialogue unfold logically so that the answers to the 12 note gaps appear in chronological order.
 
 3. Part 2: The Candidate Notes (12 gapped questions per extract):
    * Create a structured note-taking form under 3-4 clear headings (e.g. Patient details / Presenting complaint / Medical history and medication / Advice and plan).
    * Write the notes in clinical, paraphrased wording (never copying the patient's words), so they still read as grammatical, useful notes once filled in.
-   * Include exactly 12 gaps in each extract, numbered 1-12 in order down the form. Write each gap as ____ (four underscores, nothing else). A note line may have at most 2 gaps.
+   * Include EXACTLY 12 fill-in-the-blank gaps (numbered 1-12 in order down the form). Write each gap as ____ (four underscores, nothing else). A note line may have at most 2 gaps.
    * Rules for gaps:
       * Each answer must be 1 to 3 words only (numbers allowed).
       * Each answer must be the exact words spoken in the dialogue (copy the wording exactly).
@@ -708,18 +700,18 @@ Requirements:
    * Setting: a brief workplace interaction or briefing (for example a pharmacy handover, a team huddle, a phone call with a GP or ward nurse, a policy or protocol briefing, an equipment malfunction, a post-operative patient briefing).
    * Topic: make each of the 6 extracts a different setting and topic.
    * Target Audio Duration: 40 to 60 seconds when spoken.
-   * Each recording must last 40 to 60 seconds when spoken at a natural workplace-conversation pace. Keep the exchange concise and complete enough to support its question without padding.
+   * Transcript Length: 80 to 120 words per extract (never more than 120).
 
 2. Part 1: Audio Transcript ("dialogue"):
    * Write a concise monologue (one speaker) or a brief 2-person dialogue typical of a healthcare setting, in British English.
-   * Use a natural professional register and realistic healthcare terminology. Distractors must arise naturally from the audio; do not make the speaker artificially confusing.
+   * Use a natural professional register, realistic healthcare terminology, and subtle distractors (information that is mentioned but then changed, rejected or corrected).
    * Give each extract a one-sentence "context" that tells the candidate who is speaking and where (for example "You hear a pharmacist handing over to a colleague at the end of a shift.").
 
 3. Part 2: Multiple-Choice Question (3 Options):
-   * Write exactly one question per extract testing a relevant workplace detail, purpose, meaning or required action.
+   * Write exactly one question per extract testing the main point, purpose, opinion, or the specific action required.
    * Provide 3 options, "A. ...", "B. ...", "C. ...", in OET style: all three plausible in the context, similar in length and grammatical form.
    * Only one option is completely correct according to what is stated.
-   * Use plausible distractors that reflect common misunderstandings of a stated detail, purpose or action; do not rely on trick wording.
+   * Each distractor must pick up key words or phrases from the audio but change the meaning or a detail (wrong person, wrong time, wrong reason, wrong action).
    * Vary the position of the correct answer across the 6 extracts.
 
 4. Part 3: Answer Key & Justification:
@@ -728,53 +720,11 @@ Requirements:
 
 OUTPUT: JSON only, no markdown fences, in exactly this shape:
 {"items":[{"title":"Extract 1","context":"You hear ...","dialogue":[{"s":"Pharmacist","t":"..."}],"questions":[{"q":"...","options":["A. ...","B. ...","C. ..."],"answer":"B","exp":"B is correct because ... A is wrong because ... C is wrong because ..."}]}]}`},
- C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · about 4–5 minutes each · 90 seconds to preview each set of 6 questions · 3 options · audio plays ONCE · one question on screen at a time',p:`Role: You are an expert OET test item writer specializing in Listening Part C (Pharmacy).
-
-Task: Generate exactly 2 distinct, realistic OET Listening Part C extracts. Each extract must contain a complete spoken transcript and exactly 6 multiple-choice questions.
-
-Requirements:
-1. Extract format and length:
-   * Each extract is a pharmacist interview, expert interview, or presentation on a pharmacy or healthcare topic.
-   * Each recording must last 4 to 5 minutes when spoken at a natural presentation or interview pace. Develop the extract naturally for the full duration; do not pad it with repetition or unnecessary detail, and do not provide a sample, summary, or outline.
-   * Use natural spoken British English, a realistic professional register, and one or two speakers. Include natural turn-taking or transitions and enough development and detail to sustain the full recording.
-   * Make the extracts different in topic and format. Give each a one-sentence context explaining who the candidate hears.
-
-2. Questions:
-   * Write exactly 6 questions for each extract, with exactly 3 options (A, B, C) per question.
-   * Test a range of main ideas, opinions, attitudes, implications and specific details, as in OET Listening Part C.
-   * Make all options plausible, but ensure only one is supported by the transcript. Vary the position of the correct answer.
-   * Include the correct answer letter and a concise explanation for each question.
-
-3. Before returning the result, check that there are exactly 2 extracts, each audio transcript supports a 4-to-5-minute recording, and each extract has exactly 6 questions with 3 options each.
-
-Use "dialogue" for the transcript, with each turn as {"s":"speaker name","t":"spoken words"}. ${J}`}}},
+ C:{min:15,t:'Part C – Presentations & interviews',d:'12 questions · 2 extracts · 6 questions each · 3 options · audio plays ONCE · one question on screen at a time',p:`Create OET Pharmacy Listening Part C: 2 different extracts (a pharmacist interview or presentation, about 550 words each), each with 6 multiple-choice questions (A, B, C) testing opinion, attitude, gist and detail. Use "dialogue". ${J}`}}},
 R:{name:'Reading',parts:{
- A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`You are an expert OET Reading Part A item writer for Pharmacy.
-
-Create one item containing exactly 4 related, clearly labelled source texts (A-D) on a common healthcare/pharmacy topic. Use authentic functional source types such as a guideline, medicine information, policy or patient information. Keep the source texts concise, distinct, and information-rich; do not turn them into four essays.
-
-Write exactly 20 questions in this order:
-1. Questions 1-7: matching. Ask which text (A-D) contains a specified piece of information. No options; answer is one letter.
-2. Questions 8-13: short answer. Ask for a specific detail stated in the texts. No options; answer is a short phrase of 1-3 words.
-3. Questions 14-20: sentence completion. Include ____ in each question and require an answer of 1-3 words taken from the texts.
-
-Questions must be answerable from the texts, avoid duplicate targets, and follow OET's rapid information-finding and scanning focus. The complete source material must be returned; never omit a text.
-
-Return JSON with one item: {"items":[{"title":"...","texts":[{"label":"Text A","body":"..."},{"label":"Text B","body":"..."},{"label":"Text C","body":"..."},{"label":"Text D","body":"..."}],"questions":[{"q":"...","answer":"..."}]}]}. Omit "options" for all Part A questions. ${J}`},
- B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`You are an expert OET Reading Part B item writer for Pharmacy.
-
-Create exactly 6 separate, concise workplace texts, each followed by exactly one 3-option multiple-choice question. Use varied authentic workplace genres, such as an email, memo, policy/procedure notice, instruction, or staff communication. Each text should be about 100 words, with a clear purpose and realistic workplace details.
-
-Questions should test understanding of the text's purpose, meaning or a relevant detail, not general medical knowledge. Give exactly three plausible options labelled A, B and C, with one unambiguously correct answer. Keep options parallel in wording and length; avoid trick questions. Vary the correct option letter.
-
-Return JSON with exactly 6 items, each containing a title, the complete source in "text", and one question with options, answer letter and a concise explanation. ${J}`},
- C:{min:45,t:'Part C – Longer texts',d:'Starts after Part B (shared timer)',p:`You are an expert OET Reading Part C item writer for Pharmacy.
-
-Create exactly 2 distinct, coherent long-form texts on relevant healthcare or pharmacy topics, such as practice, treatment, research, or professional experience. Each text should be about 700 words and written in a realistic article or interview style; include enough argument and detail to support interpretation questions.
-
-Write exactly 8 four-option multiple-choice questions per text (16 total). Use options A-D. Assess understanding of explicit information, the writer's or speaker's views and attitude, reference, implication and inference. Questions must be answerable from the text, with one clearly best answer; distractors should be plausible but contradicted or unsupported by the text. Vary correct answer positions.
-
-Return JSON with exactly 2 items, each containing a title, the complete source in "text", and exactly 8 questions with four options, answer letter and a concise explanation. ${J}`}}}};
+ A:{min:15,t:'Part A – Expert text extraction',d:'20 questions · 4 short texts (A–D) · matching, short answer, sentence completion · strict 15-minute timer',p:`Create OET Pharmacy Reading Part A: 4 short related texts (Text A-D, about 150-200 words each: e.g. guideline, drug monograph, policy, patient leaflet) on ONE topic, in a single item using "texts". Add exactly 20 questions: first 7 matching ("Which text states...?" answer = letter A-D, no options), then 6 short-answer, then 7 sentence-completion (q contains ____). Answers 1-3 words or a letter. ${J}`},
+ B:{min:45,t:'Part B & C – Workplace + longer texts',d:'Part B: 6 short texts, 1 question each · then Part C: 2 longer texts, 8 questions each · SHARED 45-minute timer, exactly like the real test',p:`Create OET Pharmacy Reading Part B: 6 different short workplace texts (about 100 words: emails, memos, protocols, notices), each with 1 multiple-choice question (A, B, C). Put the full workplace text in the "text" field of each item (never leave it empty). ${J}`},
+ C:{min:45,t:'Part C – Longer texts',d:'Starts after Part B (shared timer)',p:`Create OET Pharmacy Reading Part C: 2 different texts (about 700 words each, journal-style articles on pharmacy practice or pharmacology), each with 8 multiple-choice questions (A, B, C, D) on detail, opinion, reference and inference. Put the full article in the "text" field of each item (never leave it empty). ${J}`}}}};
 
 /* sequential progression, permanent locks & scoring (per test attempt) */
 const ORDER={L:['A','B','C'],R:['A','B','C']};
@@ -897,7 +847,8 @@ function part(sk){const S=SPEC[sk];curMenu=sk;$('secLabel').textContent=S.name;
 function normLA(d){
  const probs=[];let usable=true;
  const items=Array.isArray(d&&d.items)?d.items:[];
- if(items.length!==2)return{ok:false,usable:false,probs:[`Expected exactly 2 extracts, received ${items.length}`]};
+ if(items.length<2)return{ok:false,usable:false,probs:['Fewer than 2 extracts returned']};
+ items.length=2;
  const clean=x=>String(x||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
  const GAP=/_{3,}|\[\s*\d+\s*\]|\(\s*\d+\s*\)|…+|\.{4,}/g;
  items.forEach((it,n)=>{
@@ -929,24 +880,9 @@ function normLA(d){
    const i=tx.indexOf(c,pos);
    if(i<0)probs.push(tag+'gap '+(j+1)+(tx.indexOf(c)<0?' answer is not in the recording':' is out of order'));
    else pos=i+c.length});
-  if(words<600||words>750)probs.push(tag+'recording is '+words+' words (needs 600-750 for 4-5 minutes)');
+  if(words<570||words>790)probs.push(tag+'recording is '+words+' words (needs about 600-750 for 4-5 minutes)');
  });
  return{ok:!probs.length,usable,probs}}
-function normLC(d){
- const probs=[],items=Array.isArray(d&&d.items)?d.items:[];
- if(items.length!==2)return{ok:false,probs:[`Expected 2 extracts, received ${items.length}`]};
- items.forEach((it,n)=>{
-  const tag='Extract '+(n+1)+': ',dlg=Array.isArray(it&&it.dialogue)?it.dialogue:[];
-  const words=dlg.reduce((total,line)=>total+(String(line&&line.t||'').trim().match(/\S+/g)||[]).length,0);
-  const qs=Array.isArray(it&&it.questions)?it.questions:[];
-  if(words<600||words>750)probs.push(tag+`transcript is ${words} words (needs 600-750 for 4-5 minutes)`);
-  if(qs.length!==6)probs.push(tag+`has ${qs.length} questions instead of 6`);
-  qs.forEach((q,j)=>{
-   if(!Array.isArray(q&&q.options)||q.options.length!==3)probs.push(tag+`question ${j+1} does not have exactly 3 options`);
-   if(!/^[ABC]$/.test(String(q&&q.answer||'').trim()))probs.push(tag+`question ${j+1} has no valid answer letter`);
-  });
- });
- return{ok:!probs.length,probs}}
 async function startPart(sk,pk,rem){
  if(EX&&!EX.submitted)return;
  const st=partState(sk,pk);
@@ -956,20 +892,17 @@ async function startPart(sk,pk,rem){
  const P=SPEC[sk].parts[pk],id=sk+pk;mmss();stopAudio();$('secLabel').textContent=P.t;
  $('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(AI generation – a few seconds)</span></div>';
  try{let d;
-  if(id==='LA'){let valid=null,lastErr=null;
+  if(id==='LA'){let best=null,lastErr=null;
    for(let t=1;t<=3;t++){
-    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking transcript duration and notes — attempt '+t+' of 3)</span></div>';
-    try{const cand=await gem(P.p),v=normLA(cand);if(!v.ok)throw new Error(v.probs.join('; '));valid=cand;break}catch(e){lastErr=e}}
-   if(!valid)throw new Error('Could not generate valid Listening Part A consultations after 3 attempts. '+(lastErr?lastErr.message:'Please start Part A again.'));
-   d=valid}
-  else if(id==='LC'){let valid=null,lastErr=null;
-   for(let t=1;t<=3;t++){
-    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking extract length and questions — attempt '+t+' of 3)</span></div>';
-    try{const cand=await gem(P.p),v=normLC(cand);if(!v.ok)throw new Error(v.probs.join('; '));valid=cand;break}catch(e){lastErr=e}}
-   if(!valid)throw new Error('Could not generate valid Listening Part C extracts after 3 attempts. '+(lastErr?lastErr.message:'Please start Part C again.'));
-   d=valid}
+    if(t>1)$('main').innerHTML='<div class="card">Preparing '+esc(P.t)+'… <span class="mut">(checking the notes against the recording — attempt '+t+' of 3)</span></div>';
+    let cand;try{cand=await gem(P.p)}catch(e){lastErr=e;continue}
+    const v=normLA(cand);
+    if(v.usable&&(!best||v.probs.length<best.v.probs.length))best={d:cand,v};
+    if(v.ok)break}
+   if(!best)throw lastErr||new Error('No valid Part A set was produced (no gaps appeared). Please start Part A again.');
+   if(!best.v.ok)console.warn('Part A quality notes:',best.v.probs);
+   d=best.d}
   else d=await gem(P.p);
-  if(sk==='L')await preloadListeningAudio(id,d);
   beginExam(sk,pk,d,rem)}catch(e){$('main').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function normPassage(it){
  const flat=v=>Array.isArray(v)?v.map(x=>typeof x==='string'?x:(x&&((x.label?x.label+'\n':'')+(x.body||x.text||x.t||'')))||'').join('\n\n'):(v&&typeof v==='object'?Object.values(v).join('\n'):v);
@@ -982,7 +915,7 @@ function beginExam(sk,pk,d,rem){
  if(sk==='R'&&pk!=='A')(d.items||[]).forEach(normPassage);
  d.items.forEach(it=>{if(it.notes)it.questions=(it.answers||[]).map(a=>({q:'',answer:a}))});
  let k=1;d.items.forEach(it=>it.questions.forEach(q=>q.k=k++));
- EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk,lcStarted:{},lcPreparing:null,previewTick:null,laPreparing:{},laPreviewTicks:{}};
+ EX={sk,pk,P,id,items:d.items,mode:(id==='LA'||id==='RA')?'all':'seq',answers:{},flags:{},strikes:{},cur:0,total:k-1,submitted:false,combined:(sk==='R'&&pk==='B'),remaining:rem??P.min*60,tab:sk};
  played[id]={};lastLeftFor=-1;
  if(EX.mode==='seq'){EX.seq=[];d.items.forEach((it,i)=>it.questions.forEach(q=>EX.seq.push({it,i,q})))}
  renderShell();
@@ -1008,7 +941,6 @@ function leftHTML(it,i){
  <div class="tx hlable txpane"><b>${esc(it.title||'')}</b>\n\n${it.text?esc(it.text):'⚠ The AI did not return a text for this question. Go back and start the part again to regenerate it.'}</div></div>`}
 function renderSeq(){
  const {it,q,i}=EX.seq[EX.cur],k=q.k;
- if(EX.id==='LC'&&EX.cur===EX.seq.findIndex(s=>s.i===i)&&!EX.lcStarted[i]){startLCPreview(i);return}
  if(lastLeftFor!==i){lastLeftFor=i;hlon=false;$('leftPane').innerHTML=leftHTML(it,i)}
  const fl=!!EX.flags[k];
  $('rightPane').innerHTML=`<div class="card"><div class="qhead" style="display:flex;justify-content:space-between;gap:10px"><b>Question ${k} of ${EX.total}</b><span class="mut">${esc(it.title||'')}</span></div>
@@ -1020,27 +952,7 @@ function renderSeq(){
  $('bBack').disabled=EX.cur===0;
  $('bNext').textContent=EX.cur===EX.seq.length-1?'Submit part ▶':'Next ▶';
  $('bFlag').className='s'+(fl?' flagged':'');$('bFlag').innerHTML=fl?'⚑ Unflag question':'⚑ Flag for review'}
-function startLCPreview(i){
- if(EX.lcPreparing!==null)return;
- EX.lcPreparing=i;
- let left=90;
- const qs=EX.seq.filter(s=>s.i===i);
- $('rightPane').innerHTML=`<div class="card"><h3>Read the questions — Extract ${i+1}</h3><p class="mut">You have <b id="lcPreviewCountdown">01:30</b> to review all six questions. The Part C timer continues during this preview.</p>${qs.map((s,n)=>`<div class="q"><span class="n">${n+1}</span>${esc(s.q.q)}<div>${(s.q.options||[]).map(o=>`<div class="opt">${esc(o)}</div>`).join('')}</div></div>`).join('')}</div>`;
- ['bBack','bFlag','bNext'].forEach(id=>{const b=$(id);if(b)b.disabled=true});
- const review=document.querySelector('#main .bar button[onclick="openReview()"]');if(review)review.disabled=true;
- EX.previewTick=setInterval(()=>{
-  left--;
-  const countdown=$('lcPreviewCountdown');
-  if(countdown)countdown.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
-  if(left<=0){
-   clearInterval(EX.previewTick);EX.previewTick=null;EX.lcPreparing=null;EX.lcStarted[i]=true;
-   renderSeq();
-   ['bFlag','bNext'].forEach(id=>{const b=$(id);if(b)b.disabled=false});
-   const review=document.querySelector('#main .bar button[onclick="openReview()"]');if(review)review.disabled=false;
-  }
- },1000)}
 function navQ(d){if(!EX||EX.submitted)return;
- if(EX.lcPreparing!==null)return;
  if(d>0&&EX.cur>=EX.seq.length-1){askSubmit();return}
  EX.cur=Math.min(EX.seq.length-1,Math.max(0,EX.cur+d));renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
 function toggleFlag(){const k=EX.seq[EX.cur].q.k;EX.flags[k]?!delete EX.flags[k]:EX.flags[k]=1;renderSeq()}
@@ -1059,7 +971,7 @@ function notesHTML(id,it){let h='<div class="notes"><div class="nt">Complete the
 function itemBlock(it,i){
  const id=EX.id;let h=`<div class="card"><h3>${esc(it.title||'')}</h3>${it.context?`<p class="mut">${esc(it.context)}</p>`:''}`;
  if(it.dialogue){const pd=played[id]&&(played[id][i]||played[id]['b'+i]);
-  h+=`<div class="player"><button class="p" id="pb${id}${i}" onclick="${id==='LA'?`startLAPreview('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')`:`playCore('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')`}" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
+  h+=`<div class="player"><button class="p" id="pb${id}${i}" onclick="playCore('${id}',${i},'pb${id}${i}','pf${id}${i}','pt${id}${i}')" ${pd?'disabled':''}>${pd?'✔ Audio played':'▶ Play audio'}</button>
   <div class="ptrack"><div class="pfill" id="pf${id}${i}"></div></div><span class="mut" id="pt${id}${i}"></span>
   <input type="range" min="0" max="1" step="0.05" value="${VOL()}" oninput="setVol(this.value)" title="Volume" style="width:90px"></div>
   <p class="mut">Plays once — no pause, replay or speed change.</p><div class="tx" id="tr${id}${i}" style="display:none"></div>`}
@@ -1080,21 +992,17 @@ function renderAll(){
 function countAns(){return Object.values(EX.answers).filter(v=>v&&String(v).trim()!=='').length}
 function countFl(){return Object.keys(EX.flags).length}
 function openReview(){
- if(EX.lcPreparing!==null)return;
  const cells=EX.mode==='seq'?EX.seq.map((s,n)=>({k:s.q.k,n:n+1})):EX.items.flatMap(it=>it.questions.map(q=>({k:q.k,n:q.k})));
  $('revGrid').innerHTML=cells.map(({k,n})=>{const ans=EX.answers[k]&&String(EX.answers[k]).trim()!=='',fl=EX.flags[k];
   return `<button class="pv ${ans?'ans':''} ${fl?'fl':''}" onclick="jumpTo(${k},${n})">${n}</button>`}).join('');
  $('revSum').textContent=`${countAns()} of ${EX.total} answered · ${countFl()} flagged`;
  $('rev').showModal()}
 function jumpTo(k,n){$('rev').close();
- if(EX.lcPreparing!==null)return;
  if(EX.mode==='seq'){EX.cur=n-1;renderSeq();window.scrollTo({top:0,behavior:'smooth'})}
  else{const el=$('qk'+k)||$('gb'+k)||$('t'+EX.id+k);el&&el.scrollIntoView({behavior:'smooth',block:'center'})}}
 function askSubmit(){ask('Submit this part?',`You have answered <b>${countAns()} of ${EX.total}</b> questions and flagged <b>${countFl()}</b> for review.<br><br><span class="bad">This part will be permanently locked and cannot be reopened.</span>`,()=>submitExam(),'Submit now')}
 function submitExam(){
  if(!EX||EX.submitted)return;EX.submitted=true;
- clearInterval(EX.previewTick);EX.previewTick=null;
- Object.values(EX.laPreviewTicks||{}).forEach(clearInterval);
  lockPart(EX.sk,EX.pk,EX.combined?{rem:Math.max(0,EX.remaining),t:Date.now()}:null);
  document.querySelectorAll('dialog[open]').forEach(d=>d.close());
  clearInterval(tick);stopAudio();
@@ -1113,24 +1021,8 @@ async function ttsFetch(text,two,v1='Kore',v2='Charon'){
   const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:speech}})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
   const p=d.candidates[0].content.parts[0].inlineData;return{data:p.data,rate:+((p.mimeType||'').match(/rate=(\d+)/)||[0,24000])[1]}}catch(e){err=e}}throw err}
-function audioRequest(L){
- const names=[...new Set(L.map(l=>l.s))],two=names.length>1;
- const style='Read this aloud as a realistic recording for an English listening exam: natural British accent, at a natural conversational speaking pace of about 150 words per minute (not slow, not rushed), with human intonation, brief natural pauses between turns and no long silences'+(two?', as a real conversation between two people.':'.')+'\n\n';
- return{txt:style+(two?L.map(l=>'Speaker'+(names.indexOf(l.s)?2:1)+': '+l.t):L.map(l=>l.t)).join('\n'),
-  two,wc:L.reduce((n,l)=>n+String(l.t||'').split(/\s+/).filter(Boolean).length,0)}}
-async function preloadListeningAudio(id,d){
- const items=Array.isArray(d&&d.items)?d.items:[],cache=AUDIO_CACHE[id]=[],fallback=[];
- for(let i=0;i<items.length;i++){
-  $('main').innerHTML=`<div class="card">Preparing ${esc(SPEC.L.parts[id[1]].t)}… <span class="mut">(loading recording ${i+1} of ${items.length}; the timer starts when audio is ready)</span></div>`;
-  const req=audioRequest(Array.isArray(items[i].dialogue)?items[i].dialogue:[]);
-  try{cache[i]=decodePCM(await ttsFetch(req.txt,req.two))}catch(e){cache[i]=null;fallback.push(i+1)}
- }
- if(fallback.length)toast(`Recording${fallback.length===1?'':'s'} ${fallback.join(', ')} couldn't be preloaded; browser voice will be used.`);
-}
-function decodePCM({data,rate}){ac=ac||new AudioContext();const bin=atob(data),n=bin.length>>1,buf=ac.createBuffer(1,n,rate),ch=buf.getChannelData(0);
+function playPCM({data,rate},words){const bin=atob(data),n=bin.length>>1,buf=ac.createBuffer(1,n,rate),ch=buf.getChannelData(0);
  for(let k=0;k<n;k++){let v=bin.charCodeAt(2*k)|(bin.charCodeAt(2*k+1)<<8);if(v>32767)v-=65536;ch[k]=v/32768}
- return buf}
-function playPCM(audio,words){const buf=audio&&typeof audio.getChannelData==='function'?audio:decodePCM(audio),n=buf.length,rate=buf.sampleRate;
  const s=ac.createBufferSource();s.buffer=buf;s.connect(masterGain());cur=s;
  let pr=1;const wpm=words?words/(n/rate/60):0;
  if(wpm&&(wpm<135||wpm>165))pr=Math.max(.88,Math.min(1.2,150/wpm)); /* steer delivery to about 150 words per minute, like a real exam recording */
@@ -1143,32 +1035,15 @@ function startProg(pfId,ptId,dur){const t0=performance.now();cancelAnimationFram
 function bestVoice(){const v=speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang));const rank=x=>(/natural|online|neural/i.test(x.name)?4:0)+(/google|premium|enhanced/i.test(x.name)?2:0)+(/GB/.test(x.lang)?1:0);return v.sort((a,b)=>rank(b)-rank(a))[0]}
 function browserSay(text,i=0){const u=new SpeechSynthesisUtterance(text),v=bestVoice();if(v)u.voice=v;u.pitch=i?1.15:0.9;u.rate=1;u.volume=VOL();speechSynthesis.speak(u);return new Promise(r=>u.onend=r)}
 async function say(text){try{ac=ac||new AudioContext();ac.resume();await playPCM(await ttsFetch(text,false,'Puck')).done}catch(e){browserSay(text)}}
-function startLAPreview(id,i,bid,pfid,ptid){
- if(!EX||EX.submitted||EX.laPreparing[i]||(played[id]&&(played[id][i]||played[id]['b'+i])))return;
- const b=$(bid);if(!b)return;
- EX.laPreparing[i]=true;b.disabled=true;
- let left=30;
- b.textContent='Read notes: 00:30';
- EX.laPreviewTicks[i]=setInterval(()=>{
-  if(!EX||EX.submitted){clearInterval(EX&&EX.laPreviewTicks[i]);return}
-  left--;
-  b.textContent='Read notes: 00:'+String(left).padStart(2,'0');
-  if(left<=0){
-   clearInterval(EX.laPreviewTicks[i]);EX.laPreviewTicks[i]=null;EX.laPreparing[i]=false;
-   b.textContent='Starting audio…';
-   playCore(id,i,bid,pfid,ptid)
-  }
- },1000)
-}
 async function playCore(id,i,bid,pfid,ptid){
  if(played[id]&&(played[id][i]||played[id]['b'+i]))return;
  played[id]['b'+i]=1;ac=ac||new AudioContext();ac.resume();stopAudio();
- const b=$(bid),L=DATA[id].items[i].dialogue,{txt,two,wc}=audioRequest(L);
+ const b=$(bid),L=DATA[id].items[i].dialogue,names=[...new Set(L.map(l=>l.s))],two=names.length>1;
+ const style='Read this aloud as a realistic recording for an English listening exam: natural British accent, at a natural conversational speaking pace of about 150 words per minute (not slow, not rushed), with human intonation, brief natural pauses between turns and no long silences'+(two?', as a real conversation between two people.':'.')+'\n\n';
+ const txt=style+(two?L.map(l=>'Speaker'+(names.indexOf(l.s)?2:1)+': '+l.t):L.map(l=>l.t)).join('\n');
  b.disabled=true;b.textContent='Loading audio…';
- try{const cached=AUDIO_CACHE[id]&&Object.prototype.hasOwnProperty.call(AUDIO_CACHE[id],i),
-   a=cached?AUDIO_CACHE[id][i]:await ttsFetch(txt,two);
-  if(!a)throw new Error('Preloaded recording is unavailable');
-  played[id][i]=1;b.textContent='❚❚ Audio playing (once only)';
+ try{const a=await ttsFetch(txt,two);played[id][i]=1;b.textContent='❚❚ Audio playing (once only)';
+  const wc=L.reduce((n,l)=>n+String(l.t||'').split(/\s+/).filter(Boolean).length,0);
   const {done,dur}=playPCM(a,wc);if(pfid)startProg(pfid,ptid,dur);await done}
  catch(e){played[id][i]=1;b.textContent='Audio playing (browser voice fallback)';const sp={};for(const l of L){if(!(l.s in sp))sp[l.s]=Object.keys(sp).length;await browserSay(l.t,sp[l.s]%2)}}
  b.textContent='✔ Audio played';b.disabled=true;const f=$(pfid);if(f)f.style.width='100%'}
@@ -1236,10 +1111,7 @@ function openWriting(){const t=$('ltr');if(!t||!t.disabled||t.dataset.open)retur
  const b=$('wBanner');if(b){b.className='msg okm';b.textContent='✓ Writing time — type your letter in the box below.'}
  timer(2400,()=>{t.disabled=true;evalW()},'Writing')}
 async function newW(){busyW=true;mmss();$('w').innerHTML='<div class="card">Preparing case notes…</div>';
- try{const d=await gem(`You are an expert OET Writing task writer for Pharmacy.
-Create one realistic case-note task requiring the candidate to write a professional letter in response to a clear purpose (for example referral, transfer of care, or an update requesting review). Choose a plausible recipient who can act on the information. Make the setting and case clinically coherent.
-The notes must be concise, factual and in note form, with useful headings such as patient details, reason for writing, relevant history/medicines, assessment/actions and plan. Include enough relevant facts to support a complete, focused letter, plus at most two clearly non-essential details that the candidate should omit. Do not write the letter or add facts that are absent from the notes. Avoid real personal identifiers.
-Return valid JSON only: {"setting":"one-line workplace setting","recipient":"professional recipient and role","notes":"case notes in plain text"}.`);
+ try{const d=await gem('Create an OET Pharmacy Writing task. Return JSON {"setting":"","recipient":"","notes":""}. "setting" = one-line pharmacist workplace (e.g. hospital outpatient pharmacy). "recipient" = who the letter goes to (e.g. patient\'s GP, community pharmacist, specialist nurse). "notes" = realistic case notes in OET style (plain text, note form, with headings: Patient, Reason for letter, Medical history, Medications, Social history, Pharmacist assessment and actions, Plan/follow-up), including a few irrelevant details the writer should omit.');
  DATA.W=d;$('w').innerHTML=`<div class="two"><div class="card"><h3>Case notes</h3><p class="mut">Setting: ${esc(d.setting)}</p><div class="tx" style="max-height:500px">${esc(d.notes)}</div></div>
  <div class="card"><h3>Task</h3><p>Using the information in the case notes, write a letter to <b>${esc(d.recipient)}</b>.</p><p>In your answer:<br>• Expand the relevant notes into complete sentences<br>• Do not use note form<br>• Use letter format</p><p>The body of the letter should be approximately <b>180–200 words</b>.</p>
  <div class="msg run" id="wBanner">● Reading time — the writing box is locked for the first 5:00 and opens automatically. <button class="s" type="button" onclick="openWriting()">Skip reading time &amp; start writing</button></div>
@@ -1247,9 +1119,7 @@ Return valid JSON only: {"setting":"one-line workplace setting","recipient":"pro
  timer(300,openWriting,'Reading time')}catch(e){busyW=false;$('w').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function askW(){ask('Submit your letter?','Your letter will be marked and you will not be able to edit it afterwards.',()=>evalW(),'Submit letter')}
 async function evalW(){mmss();if(!isDone('W','T'))lockPart('W','T');$('wf').innerHTML='<div class="card">Marking…</div>';const l=$('ltr').value;$('ltr').disabled=true;
- try{const e=await gem(`You are an OET Writing assessor. Assess the candidate's letter only against the task purpose, recipient and supplied case notes. Do not reward invented clinical facts or penalise a valid concise paraphrase. Consider selection of relevant information, accurate communication of key facts, appropriate professional letter conventions, clear organisation, concision and language control.
-Score the OET Writing criteria separately using whole numbers only: Purpose 0-3; Content 0-7; Conciseness & Clarity 0-7; Genre & Style 0-7; Organisation & Layout 0-7; Language 0-7. Do not exceed any maximum. Provide actionable feedback, and identify important omitted information and irrelevant or unsupported content.
-Case notes:\n${DATA.W.notes}\nRecipient: ${DATA.W.recipient}\nLetter:\n${l}\nReturn JSON {"purpose":0,"content":0,"clarity":0,"genre":0,"organisation":0,"language":0,"strengths":[""],"improvements":[""],"missing_or_irrelevant":""}`);
+ try{const e=await gem(`You are an OET Writing assessor. Mark this Pharmacy letter on the official OET criteria: Purpose (0-3), Content (0-7), Conciseness & Clarity (0-7), Genre & Style (0-7), Organisation & Layout (0-7), Language (0-7). Use whole numbers only (no half marks) and never exceed a maximum.\nCase notes:\n${DATA.W.notes}\nRecipient: ${DATA.W.recipient}\nLetter:\n${l}\nReturn JSON {"purpose":0,"content":0,"clarity":0,"genre":0,"organisation":0,"language":0,"strengths":[""],"improvements":[""],"missing_or_irrelevant":""}`);
  busyW=false;
  const ws=clamp(e.purpose,3)+clamp(e.content,7)+clamp(e.clarity,7)+clamp(e.genre,7)+clamp(e.organisation,7)+clamp(e.language,7);
  const west=scaled(ws/WMAX*42),wgr=grade(west);
@@ -1264,15 +1134,13 @@ function speaking(){
  $('main').innerHTML=`<div class="card"><h2>Speaking Sub-Test</h2><p class="mut">Two role-plays. For each: 3 minutes preparation, then about 5 minutes with the patient. You are the pharmacist. Speak (🎤) or type.</p><button class="p" onclick="newS()">${isDone('S',0)?'Continue – Role-play 2':'Start Speaking Test'}</button></div>
  <div class="card"><h3>🎤 Microphone check</h3><p class="mut">The role-plays use your microphone for speech-to-text and to record your voice (kept on this device only). Test it before you start.</p><div class="msg wait" id="micMsg">● Looking for a microphone…</div><div class="ptrack" style="margin:8px 0"><div class="pfill" id="micLvl" style="width:0"></div></div><button class="s" onclick="testMic()">🎤 Test microphone</button></div><div id="sp"></div>`;micInit()}
 async function newS(){busyS=true;mmss();$('sp').innerHTML='<div class="card">Preparing role-play cards…</div>';
- try{const d=await gem(`You are an expert OET Speaking role-play task writer for Pharmacy. Create exactly 2 distinct, realistic role-play cards. The candidate is always the pharmacist; the interlocutor is a patient or carer in a plausible community or hospital pharmacy context.
-For each card, give a concise setting, the interlocutor's role, and a short candidate-facing background with only the information a pharmacist would reasonably know before the consultation. Give exactly 4 clear task bullets, phrased as actions (for example find out, explain, advise, reassure, or agree a plan). Tasks should elicit natural two-way communication, not a speech or a checklist of clinical facts. Keep all details coherent and avoid asking the candidate to diagnose, prescribe, or make unsupported decisions beyond the pharmacist's role.
-Return valid JSON only: {"cards":[{"setting":"","patient":"","background":"","tasks":["","","",""]},{"setting":"","patient":"","background":"","tasks":["","","",""]}]}.`);cards=d.cards.slice(0,2);rp(isDone('S',0)?1:0)}catch(e){busyS=false;$('sp').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
+ try{const d=await gem('Create 2 different OET Pharmacy Speaking role-play cards for the candidate, who plays the pharmacist. Return JSON {"cards":[{"setting":"","patient":"","background":"","tasks":["","","",""]}]}. Settings: community pharmacy or hospital. Tasks are 4 bullet instructions in the OET style (e.g. "Find out about...", "Explain how...", "Reassure...").');cards=d.cards.slice(0,2);rp(isDone('S',0)?1:0)}catch(e){busyS=false;$('sp').innerHTML=`<div class="card bad">${esc(e.message)}</div>`}}
 function rp(i){RP=i;chat=[];busyS=true;$('sp').innerHTML=`<div class="card"><h2>Role-play ${i+1} of 2 – Candidate card</h2><p><b>Setting:</b> ${esc(cards[i].setting)}</p><p><b>Patient:</b> ${esc(cards[i].patient)}</p><p><b>Background:</b> ${esc(cards[i].background)}</p><p><b>Task:</b></p><ul>${cards[i].tasks.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
  <div class="card"><div id="recInd" class="mut" style="margin-bottom:6px"></div><div id="ch" style="min-height:150px;max-height:320px;overflow:auto"><span class="mut">Preparation time – the role-play opens after 3:00.</span></div><div style="display:flex;gap:6px;margin-top:8px"><input type="text" id="ci" style="flex:1;width:auto" disabled onkeydown="if(event.key==='Enter')send()"><button class="s" id="mc" onclick="mic()" disabled>🎤</button><button class="p" id="sd" onclick="send()" disabled>Send</button></div><br><button class="s" onclick="askEndS()">End role-play &amp; get feedback</button></div><div id="sf"></div>`;
  stopMicTest();micDetect().then(r=>{const ri=$('recInd');if(ri&&!MIC.rec)ri.textContent=r.state==='found'?'🎤 Microphone detected — your voice is recorded once the role-play opens.':'⚠ No microphone detected — you can still type your answers.'});
  timer(180,()=>{['ci','mc','sd'].forEach(x=>$(x).disabled=false);startRec();$('ch').innerHTML='<span class="mut">The patient is waiting. Start the role-play.</span>';$('ci').focus();timer(300,endS,'Role-play')},'Preparation')}
 async function send(){const t=$('ci').value.trim();if(!t)return;$('ci').value='';$('ch').innerHTML+=`<div class="msg me"><b>You:</b> ${esc(t)}</div>`;chat.push({role:'user',parts:[{text:t}]});
- try{const c=cards[RP],r=await gem(chat,false,`You are the ${c.patient} in a realistic OET Pharmacy role-play. Scenario: ${c.background}. The candidate is the pharmacist and has these tasks: ${c.tasks.join('; ')}. Remain in character and respond naturally in 1-3 short spoken sentences. Do not volunteer every detail at once: disclose relevant information when the candidate asks or when it would naturally arise. React to explanations and show a believable perspective or concern when appropriate. Do not coach, assess, or speak for the pharmacist. Keep the interaction clinically plausible and consistent with the scenario.`);
+ try{const c=cards[RP],r=await gem(chat,false,`You are the patient in an OET Pharmacy speaking role-play. Patient: ${c.patient}. Background: ${c.background}. The candidate is the pharmacist, tasks: ${c.tasks.join('; ')}. Stay in character, reply in 1-3 spoken sentences, only reveal information when asked, show realistic worry, never coach the candidate.`);
  chat.push({role:'model',parts:[{text:r}]});$('ch').innerHTML+=`<div class="msg pt" style="background:#f1f1f1"><b>Patient:</b> ${esc(r)}</div>`;$('ch').scrollTop=1e5;say(r)}catch(e){$('ch').innerHTML+=`<div class="card bad">${esc(e.message)}</div>`}}
 /* ---------- microphone detection, test & recording ---------- */
 const MIC={ok:false,test:null,ctx:null,raf:0,rec:null,recStream:null,chunks:[],sr:null};
@@ -1330,9 +1198,7 @@ function mic(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;
 function askEndS(){ask('End this role-play?','Your conversation will be assessed and scored, and this role-play will be locked.',()=>endS(),'End & assess')}
 async function endS(){mmss();stopAudio();if(MIC.sr){MIC.sr.onend=null;try{MIC.sr.abort()}catch(e){}MIC.sr=null;const mb=$('mc');if(mb)mb.textContent='🎤'}const recUrl=await stopRec();['ci','mc','sd'].forEach(x=>$(x).disabled=true);if(chat.length<2){busyS=false;lockPart('S',RP,{score:0,max:SMAX});$('sf').innerHTML=`<div class="card bad">No conversation to assess – recorded as 0 / ${SMAX}.<br><br>${RP==0?'<button class="p" onclick="rp(1)">Start Role-play 2</button>':'<button class="p" onclick="nav(\'S\')">Back to Speaking menu</button>'}</div>`;return}
  $('sf').innerHTML='<div class="card">Assessing…</div>';const tr=chat.map(m=>(m.role=='user'?'Pharmacist: ':'Patient: ')+m.parts[0].text).join('\n');
- try{const e=await gem(`You are an OET Speaking assessor. Assess only evidence in this role-play transcript against the candidate's tasks; do not infer unrecorded actions, pronunciation, stress, intonation, or pauses from text. Be cautious about intelligibility and fluency because this transcript may come from speech-to-text; explain this limitation rather than inventing audio evidence.
-Score the linguistic criteria as whole numbers from 0-6 each: intelligibility (only insofar as the wording is comprehensible), fluency (only observable conversational continuity), appropriateness of language, and resources of grammar and expression. Score the clinical communication indicators as whole numbers from 0-3 each: relationship building, understanding and incorporating the patient's perspective, providing structure, information gathering, and information giving. Base every score on specific transcript evidence; do not give credit just for mentioning a task if the communication is ineffective.
-Role-play tasks: ${cards[RP].tasks.join('; ')}\nTranscript:\n${tr}\nReturn JSON {"intelligibility":0,"fluency":0,"appropriateness":0,"grammar":0,"relationship":0,"perspective":0,"structure":0,"gathering":0,"giving":0,"strengths":[""],"improvements":[""],"model_phrases":[""]}`);
+ try{const e=await gem(`You are an OET Speaking assessor. Role-play card tasks: ${cards[RP].tasks.join('; ')}.\nTranscript (typed or speech-to-text, so judge language from wording only):\n${tr}\nMark on OET criteria. Linguistic criteria, each scored 0-6 as whole numbers: intelligibility (pronunciation, stress, intonation), fluency (smooth flow, no long pauses), appropriateness of language (tone, register, word choice), resources of grammar and expression. Clinical communication indicators, each scored 0-3 as whole numbers: relationship building, understanding and incorporating the patient's perspective, providing structure, information gathering, information giving. Return JSON {"intelligibility":0,"fluency":0,"appropriateness":0,"grammar":0,"relationship":0,"perspective":0,"structure":0,"gathering":0,"giving":0,"strengths":[""],"improvements":[""],"model_phrases":[""]}`);
  busyS=false;
  const ling=clamp(e.intelligibility,6)+clamp(e.fluency,6)+clamp(e.appropriateness,6)+clamp(e.grammar,6),clin=clamp(e.relationship,3)+clamp(e.perspective,3)+clamp(e.structure,3)+clamp(e.gathering,3)+clamp(e.giving,3),ss=ling+clin;
  lockPart('S',RP,{score:ss,max:SMAX,ling,clin});
@@ -1349,12 +1215,12 @@ function obKeyStatus(){
  const k=($('obKey')&&$('obKey').value.trim())||'';
  const s=$('obKeyStatus');if(!s)return;
  s.innerHTML=!k?'<span class="bad">● No key saved — AI sub-tests are locked (demos still work).</span>'
-  :'<span class="ok">● Key entered — use “Test key” to verify it.</span>'}
+  :k.startsWith('AIza')?'<span class="ok">● Key present ('+esc(k.slice(0,6))+'…'+esc(k.slice(-4))+')</span>'
+  :'<span class="bad">● That doesn\'t look like a Google API key — it should start with "AIza".</span>'}
 function obSaveKey(){
  const v=$('obKey').value.trim().replace(/^["']|["']$/g,'');
  key=v;localStorage.setItem('gk',v);
  obKeyStatus();obUpdateKeyBanners();
- gateDraw();
  toast(v?'API key saved':'API key cleared')}
 async function obTestKey(){
  const v=$('obKey').value.trim();if(!v){toast('Paste a key first');return}
@@ -1401,61 +1267,10 @@ function finishOnboarding(t){
 
 /* ==================== init ==================== */
 if(localStorage.getItem('prof'))$('obTitle').textContent='OET | '+localStorage.getItem('prof');
-drawNav('home');drawRail();drawScore();goStep(1);gateDraw();
+drawNav('home');drawRail();drawScore();goStep(1);
 window.addEventListener('load',()=>{
  obUpdateKeyBanners();
-});
-
-/* ==================== sign-in + API key gate ==================== */
-var AI_STUDIO_URL='https://aistudio.google.com/apikey';
-function gateUser(){try{return JSON.parse(localStorage.getItem('guser')||'null')}catch(e){return null}}
-function gateDraw(){
- const g=$('gate'),box=$('gateBox'),u=gateUser(),has=!!(key||'').trim();
- if(u&&has){g.classList.remove('show');return}
- g.classList.add('show');
- if(!u){
-  box.innerHTML=`<h2>Welcome</h2>
-   <p class="mut">Step 1 of 2 · Sign in with Google to continue.</p>
-   <div id="gateBtn" style="margin:16px 0;min-height:44px"></div>
-   <div class="msg wait" id="gateMsg">● Loading Google sign-in…</div>`;
-  if(window.google&&google.accounts&&google.accounts.id){
-   $('gateMsg').style.display='none';
-   google.accounts.id.renderButton($('gateBtn'),{theme:'outline',size:'large',type:'standard',text:'signin_with',shape:'rectangular'});
-  }
-  return}
- box.innerHTML=`<h2>Connect your Gemini API key</h2>
-  <p class="mut">Step 2 of 2 · Signed in as <b>${esc(u.name||u.email)}</b> · <a href="#" onclick="gSignOut();return false">not you?</a></p>
-  <p>The AI sub-tests need a free Gemini API key. If you don't have an active one:</p>
-  <ol>
-   <li>Click the button below (opens Google AI Studio in a new tab).</li>
-   <li>Click <b>Create API key</b> (choose or create a project if asked).</li>
-   <li>Copy the key and paste it here.</li>
-  </ol>
-  <button class="s" onclick="window.open('${AI_STUDIO_URL}','_blank','noopener')">↗ Open Google AI Studio</button>
-  <div style="display:flex;gap:8px;margin:14px 0 6px">
-   <input type="password" id="gateKey" placeholder="Paste your Gemini API key" style="flex:1;width:auto" autocomplete="off" oninput="gateKeyHint()" onkeydown="if(event.key==='Enter')gateSaveKey()">
-   <button class="s" onclick="const k=$('gateKey');k.type=k.type==='password'?'text':'password'" title="Show / hide">👁</button>
-  </div>
-  <div class="msg wait" id="gateKeyMsg">● Waiting for your key</div>
-  <div class="actions"><span class="mut">Your key stays in this browser only.</span><span style="flex:1"></span>
-   <button class="p" id="gateSave" onclick="gateSaveKey()" disabled>Save &amp; continue →</button></div>`}
-function gateKeyHint(){
- const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg');
- $('gateSave').disabled=!v;
- if(!v){m.className='msg wait';m.textContent='● Waiting for your key'}
- else{m.className='msg wait';m.textContent='● Key entered — it will be checked when you continue'}}
-async function gateSaveKey(){
- const v=$('gateKey').value.trim().replace(/^["']|["']$/g,''),m=$('gateKeyMsg'),b=$('gateSave');
- if(b.disabled)return;
- b.disabled=true;m.className='msg run';m.textContent='● Checking your key…';
- try{
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(v));
-  const d=await r.json();
-  if(d.error){m.className='msg bad';m.textContent='✗ Key rejected: '+d.error.message;b.disabled=false;return}
- }catch(e){toast('Could not verify the key (network issue) – saved anyway.',5000)}
- key=v;localStorage.setItem('gk',v);
- const u=gateUser();if(u)localStorage.setItem('gkOwner',u.email||u.name||'');
- toast('API key saved');gateDraw()}
+ if(!(localStorage.getItem('gk')||'').trim())setTimeout(openSet,400)});
 
 /* ==================== Google sign-in (Google Identity Services) ==================== */
 const G_CLIENT_ID='399146220569-4roj67gvr1e1snc51fitjv049eoiuhh2.apps.googleusercontent.com';
@@ -1467,22 +1282,16 @@ function gOnCred(r){
  const c=gDecode(r.credential);if(!c){toast('Sign-in failed – please try again.');return}
  const u={name:c.name||'',email:c.email||'',picture:c.picture||''};
  try{localStorage.setItem('guser',JSON.stringify(u))}catch(e){}
- setCandidateFromGoogle(u);
-  const who=u.email||u.name,owner=localStorage.getItem('gkOwner');
-  if(owner&&owner!==who){key='';localStorage.removeItem('gk')}   /* different person: don't reuse the previous key */
-  else if(!owner&&key)localStorage.setItem('gkOwner',who);
- gShow(u);gateDraw();toast('Signed in as '+(u.name||u.email))}
+ gShow(u);toast('Signed in as '+(u.name||u.email))}
 function gSignOut(){
  try{localStorage.removeItem('guser')}catch(e){}
  try{google.accounts.id.disableAutoSelect()}catch(e){}
- gShow(null);gateDraw();toast('Signed out')}
+ gShow(null);toast('Signed out')}
 function gInit(){
  let saved=null;try{saved=JSON.parse(localStorage.getItem('guser')||'null')}catch(e){}
- setCandidateFromGoogle(saved);
  gShow(saved);
- if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';gateDraw();return}
+ if(!window.google||!google.accounts||!google.accounts.id){$('gBtn').innerHTML='<button class="zb" onclick="toast(\'Google sign-in could not load – check your internet connection and open the page from http://localhost or your hosted address.\',7000)">Sign in</button>';return}
  google.accounts.id.initialize({client_id:G_CLIENT_ID,callback:gOnCred,auto_select:false});
- gateDraw();
  google.accounts.id.renderButton($('gBtn'),{theme:'outline',size:'medium',type:'standard',text:'signin_with',shape:'rectangular'});
  if(!saved)try{google.accounts.id.prompt()}catch(e){}}
 window.addEventListener('load',()=>setTimeout(gInit,300));
